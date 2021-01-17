@@ -2,7 +2,7 @@
 
 #include <cstdlib>
 #include <iostream>
-
+#include <string>
 
 void run()
 {
@@ -17,9 +17,14 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    read_data_entry(argv[1]);
-    run();
+    std::string filename = argv[1];
 
+    if (!read_data_entry(filename))
+    {
+        return EXIT_FAILURE;
+    }
+
+    run();
 
     return EXIT_SUCCESS;
 }
