@@ -1,13 +1,13 @@
 #pragma once
 
 #include <vector>
-#include <iostream>
+#include <iostream> //remove me
+#include <fstream>
 #include <boost/dynamic_bitset.hpp>
 #include <boost/variant.hpp>
 
 typedef std::vector<boost::dynamic_bitset<>> bitset2d_t;
 typedef std::vector<bitset2d_t> bitset3d_t;
-//typedef boost::variant<bitset2d_t, bitset3d_t> bitset_variant_t;
 
 struct geometry_2d_data_store
 {
@@ -30,53 +30,56 @@ typedef boost::variant<geometry_2d_data_store, geometry_3d_data_store> geometry_
 
 struct output_printer : public boost::static_visitor<>
 {
-    void operator()(geometry_2d_data_store el) const
+    void operator()(geometry_2d_data_store& geometry) const
     {
-        std::cout << el.width_ << std::endl;
-        std::cout << el.length_ << std::endl;
+        std::cout << geometry.width_ << std::endl;
+        std::cout << geometry.length_ << std::endl;
     }
 
-    void operator()(geometry_3d_data_store el) const
+    void operator()(geometry_3d_data_store& geometry) const
     {
-        std::cout << el.width_ << std::endl;
-        std::cout << el.length_ << std::endl;
-        std::cout << el.height_ << std::endl;
+        std::cout << geometry.width_ << std::endl;
+        std::cout << geometry.length_ << std::endl;
+        std::cout << geometry.height_ << std::endl;
     }
 };
 
-//std::ostream& operator<<(std::ostream &out, const geometry_data_store_variant_t &type)
-//{
-//    out << type.width_;
-//}
+struct bitset_builder : public boost::static_visitor<>
+{
+    bitset_builder(std::fstream& input_file) : input_file_(input_file) {}
 
-//    void resize()
-//    {
-//        bitset3d_ = decltype(bitset3d_)(height_, bitset2d_t(length_, boost::dynamic_bitset<>(width_)));
-//    }
+    void operator()(geometry_2d_data_store& geometry)
+    {
+        std::cout << "Debug: I am inside 2D" <<  std::endl;
+        uint8_t input_value;
 
+            for (int length = 0; length < geometry.length_; ++ length)
+            {
+                for (int width = 0; width < geometry.width_; ++width)
+                {
+                    input_file_ >> input_value;
+                    geometry.bitset2d_[length].set(width, input_value);
+                }
+            }
+    }
 
+    void operator()(geometry_3d_data_store& geometry)
+    {
+        std::cout << "Debug: I am inside 3D" <<  std::endl;
+        uint8_t input_value;
 
-//    void resize_bitset3d()
-//    {
-//        bitset_variant_ = decltype(bitset_variant_)(height_, bitset2d_t(length_,
-//                                                            boost::dynamic_bitset<>(width_)));
-//    }
-//
-//    void resize_bitset2d()
-//    {
-//        bitset_variant_ = decltype(bitset_variant_)(length_, boost::dynamic_bitset<>(width_));
-//    }
+        for (int height = 0; height < geometry.height_; ++height)
+        {
+            for (int length = 0; length < geometry.length_; ++ length)
+            {
+                for (int width = 0; width < geometry.width_; ++width)
+                {
+                    input_file_ >> input_value;
+                    geometry.bitset3d_[height][length].set(width, input_value);
+                }
+            }
+        }
+    }
 
-
-//struct bitset_visitor : public boost::static_visitor<>
-//{
-//    void operator()(bitset2d_t bitset_variant)
-//    {
-//        resize_bitset2d();
-//    }
-//
-//    void operator()(bitset3d_t bitset_variant)
-//    {
-//        resize_bitset3d();
-//    }
-//}
+    std::fstream& input_file_;
+};

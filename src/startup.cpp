@@ -20,8 +20,11 @@ int main(int argc, char* argv[])
 
     std::string filename = argv[1];
 
-    process_data_entry(filename);
-//if (!process_data_entry(filename))
+    app_context app_ctx = {};
+
+    process_data_entry(app_ctx, filename);
+
+    if (!app_ctx.is_ready_)
     {
         return EXIT_FAILURE;
     }
