@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 
-void run()
+void run_partitioning()
 {
 
 }
@@ -19,12 +19,12 @@ int main(int argc, char* argv[])
 
     std::string filename = argv[1];
 
-    if (!read_data_entry(filename))
+    if (!process_data_entry(filename))
     {
         return EXIT_FAILURE;
     }
 
-    run();
+    run_partitioning();
 
     return EXIT_SUCCESS;
 }
