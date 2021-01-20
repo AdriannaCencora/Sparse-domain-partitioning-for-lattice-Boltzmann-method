@@ -1,8 +1,30 @@
+#include "process_data_entry.h"
 #include "geometry_data_store.h"
 #include "app_context.h"
 
 #include <iostream>
 #include <fstream>
+
+void bitset_builder::operator()(bitset3d_t bitset_variant)
+{//    for (int height = 0; height < ctx.geometry_data_store_.height_; ++height)
+//    {
+//        for (int length = 0; length < ctx.geometry_data_store_.length_; ++ length)
+//        {
+//            for (int width = 0; width < ctx.geometry_data_store_.width_; ++width)
+//            {
+//                input_file >> input_value;
+//                ctx.geometry_data_store_.bitset_variant_[height][length].set(width, input_value);
+//            }
+//        }
+//    }
+
+
+}
+
+void bitset_builder::operator()(bitset2d_t bitset_variant)
+{
+
+}
 
 app_context process_data_entry(std::string filename)
 {
@@ -94,5 +116,6 @@ app_context process_data_entry(std::string filename)
 
     input_file.close();
    // return true;
-   return app_context {};
+   return ctx;
 }
+

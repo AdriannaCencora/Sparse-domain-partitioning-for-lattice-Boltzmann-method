@@ -16,6 +16,7 @@ struct geometry_data_store
     uint16_t height_;
 
     bitset_variant_t bitset_variant_;
+};
 
 //    void resize()
 //    {
@@ -35,7 +36,6 @@ struct geometry_data_store
 //        bitset_variant_ = decltype(bitset_variant_)(length_, boost::dynamic_bitset<>(width_));
 //    }
 
-};
 
 //struct bitset_visitor : public boost::static_visitor<>
 //{
