@@ -23,14 +23,13 @@ app_context process_data_entry(std::string filename)
     getline(input_file, irrelevant_data);
     getline(input_file, dimension);
 
-
-    geometry_data_store.dimension_ = dimension[0];
-
     input_file >> geometry_data_store.width_;
     input_file >> geometry_data_store.length_;
 
-    if (geometry_data_store.dimension_ == 3)
+    if (dimension[0] == '3')
     {
+        std::cout << "I am inside first iffff" <<  std::endl;
+        geometry_data_store.is_3d_ = true;
         input_file >> geometry_data_store.height_;
         bitset3d_t bitset3d = decltype(bitset3d)(geometry_data_store.height_, bitset2d_t(geometry_data_store.length_, boost::dynamic_bitset<>(geometry_data_store.width_)));
         geometry_data_store.bitset_variant_ = bitset3d;
@@ -38,6 +37,8 @@ app_context process_data_entry(std::string filename)
     }
     else
     {
+        std::cout << "I am inside second iffff" <<  std::endl;
+        geometry_data_store.is_3d_ = false;
         bitset2d_t bitset2d = decltype(bitset2d)(geometry_data_store.length_, boost::dynamic_bitset<>(geometry_data_store.width_));
         geometry_data_store.bitset_variant_ = bitset2d;
     }
@@ -54,6 +55,10 @@ app_context process_data_entry(std::string filename)
 
     app_context ctx{true, geometry_data_store};
 
+    std::cout << ctx.geometry_data_store_.is_3d_<< std::endl;
+    std::cout << ctx.geometry_data_store_.width_ << std::endl;
+    std::cout << ctx.geometry_data_store_.length_ << std::endl;
+    std::cout << ctx.geometry_data_store_.height_ << std::endl;
 
 // read header
 // should use boost::apply_visitor

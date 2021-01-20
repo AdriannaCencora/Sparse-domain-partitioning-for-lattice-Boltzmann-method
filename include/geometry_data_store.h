@@ -10,8 +10,7 @@ typedef boost::variant<bitset2d_t, bitset3d_t> bitset_variant_t;
 
 struct geometry_data_store
 {
-    uint8_t dimension_;
-
+    bool is_3d_;
     uint16_t width_;
     uint16_t length_;
     uint16_t height_;
