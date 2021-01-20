@@ -10,20 +10,20 @@ typedef boost::variant<bitset2d_t, bitset3d_t> bitset_variant_t;
 
 struct geometry_data_store
 {
+    uint8_t dimension_;
+
     uint16_t width_;
     uint16_t length_;
     uint16_t height_;
 
-    uint8_t dimension_;
+    bitset_variant_t bitset_variant_;
 
-    bitset3d_t bitset3d_;
-    void resize()
-    {
-        bitset3d_ = decltype(bitset3d_)(height_, bitset2d_t(length_, boost::dynamic_bitset<>(width_)));
-    }
+//    void resize()
+//    {
+//        bitset3d_ = decltype(bitset3d_)(height_, bitset2d_t(length_, boost::dynamic_bitset<>(width_)));
+//    }
 
 
-//    bitset_variant_t bitset_variant_;
 
 //    void resize_bitset3d()
 //    {

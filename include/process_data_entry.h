@@ -1,5 +1,7 @@
 #pragma once
 
+#include "app_context.h"
+
 #include <string>
 
-bool process_data_entry(std::string filename);
+app_context process_data_entry(std::string filename);

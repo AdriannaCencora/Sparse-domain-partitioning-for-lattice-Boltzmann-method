@@ -1,4 +1,5 @@
 #include "process_data_entry.h"
+#include "app_context.h"
 
 #include <cstdlib>
 #include <iostream>
@@ -19,7 +20,8 @@ int main(int argc, char* argv[])
 
     std::string filename = argv[1];
 
-    if (!process_data_entry(filename))
+    process_data_entry(filename);
+//if (!process_data_entry(filename))
     {
         return EXIT_FAILURE;
     }
