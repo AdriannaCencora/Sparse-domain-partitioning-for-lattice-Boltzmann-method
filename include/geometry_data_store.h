@@ -100,17 +100,26 @@ struct geometry_partitioner : public boost::static_visitor<>
 
     void operator()(const geometry_2d_data_store& geometry)
     {
-        for (int length = 0; length <= geometry.length_ - tile_size_; length += tile_size_)
+        int remainder = geometry.width_ % tile_size_;
+        int last_length_to_be_processed = (geometry.length_ / tile_size_) * tile_size_;
+
+        for (int length = 0; length < geometry.length_; length += tile_size_)
         {
             for (int width = 0; width <= geometry.width_ - tile_size_; width += tile_size_)
             {
                 int tmp_width = width;
                 int tmp_length = length;
                 int max_width = width + tile_size_ - 1;
-
+                int tile_area = tile_size_ * tile_size_;
                 std::cout << "WIDTH x LENGTH " << width << "x" << length << "   ";
 
-                for (int current_point_counter = 0; current_point_counter < (tile_size_ * tile_size_); ++current_point_counter)
+                if ((length == last_length_to_be_processed) and remainder)
+                {
+                    // len here equals 399 - first not processed value
+                    tile_area = tile_size_ * remainder;
+                }
+
+                for (int current_point_counter = 0; current_point_counter < tile_area; ++current_point_counter)
                 {
                     if (geometry.bitset2d_[tmp_length].test(tmp_width))
                     {
@@ -130,14 +139,18 @@ struct geometry_partitioner : public boost::static_visitor<>
                 }
 
                 int last_processed_width = (geometry.width_ / tile_size_) * tile_size_ - tile_size_;
-                int remainder = geometry.width_ % tile_size_;
                 if ((width == last_processed_width) and remainder)
                 {
                     max_width = max_width + remainder;
                     tmp_width = width + tile_size_;
                     tmp_length = length;
+                    tile_area = remainder * tile_size_;
+                    if (last_length_to_be_processed == length)
+                    {
+                         tile_area = remainder * remainder;
+                    }
 
-                    for (int current_point_counter = 0; current_point_counter < (remainder * tile_size_); ++current_point_counter)
+                    for (int current_point_counter = 0; current_point_counter < tile_area; ++current_point_counter)
                     {
                         if (geometry.bitset2d_[tmp_length].test(tmp_width))
                         {
