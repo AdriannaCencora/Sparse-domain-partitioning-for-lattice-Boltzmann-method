@@ -1,5 +1,7 @@
 #pragma once
 
+#include "tile.h"
+
 #include <vector>
 #include <iostream> //remove me
 #include <fstream>
@@ -63,7 +65,6 @@ struct bitset_builder : public boost::static_visitor<>
                     geometry.bitset2d_[length].set(width, input_value);
                 }
                 num_of_hits += geometry.bitset2d_[length].count();
-                std::cout << std::endl;
             }
                 std::cout << "COUNT: " << num_of_hits << std::endl;
     }
@@ -91,27 +92,30 @@ struct bitset_builder : public boost::static_visitor<>
 
 struct geometry_partitioner : public boost::static_visitor<>
 {
-    int tile_size = 3;
+    geometry_partitioner(int tile_size)
+        : tile_size_(tile_size)
+    {}
+
     int counter = 0;
 
     void operator()(const geometry_2d_data_store& geometry)
     {
-        for (int length = 0; length < geometry.length_ - tile_size; length += tile_size)
+        for (int length = 0; length <= geometry.length_ - tile_size_; length += tile_size_)
         {
-            for (int width = 0; width < geometry.width_ - tile_size; width += tile_size)
+            for (int width = 0; width <= geometry.width_ - tile_size_; width += tile_size_)
             {
                 int tmp_width = width;
                 int tmp_length = length;
-                int max_width = width + tile_size - 1;
+                int max_width = width + tile_size_ - 1;
 
                 std::cout << "WIDTH x LENGTH " << width << "x" << length << "   ";
 
-                for (int current_point_counter = 0; current_point_counter < (tile_size * tile_size); ++current_point_counter)
+                for (int current_point_counter = 0; current_point_counter < (tile_size_ * tile_size_); ++current_point_counter)
                 {
                     if (geometry.bitset2d_[tmp_length].test(tmp_width))
                     {
                         ++counter;
-                        std::cout << "[" << tmp_width << ", " << tmp_length << "] ";
+            //            std::cout << "[" << tmp_width << ", " << tmp_length << "] ";
                     }
 
                     if (tmp_width == max_width)
@@ -124,10 +128,35 @@ struct geometry_partitioner : public boost::static_visitor<>
                         ++tmp_width;
                     }
                 }
-                std::cout << std::endl;
-               // apply_tiling(width, length, tile_size);
-            }
-        }
+
+                int last_processed_width = (geometry.width_ / tile_size_) * tile_size_ - tile_size_;
+                int remainder = geometry.width_ % tile_size_;
+                if ((width == last_processed_width) and remainder)
+                {
+                    max_width = max_width + remainder;
+                    tmp_width = width + tile_size_;
+                    tmp_length = length;
+
+                    for (int current_point_counter = 0; current_point_counter < (remainder * tile_size_); ++current_point_counter)
+                    {
+                        if (geometry.bitset2d_[tmp_length].test(tmp_width))
+                        {
+                            ++counter;
+                        }
+                        if (tmp_width == max_width)
+                        {
+                            tmp_width = width + tile_size_;
+                            ++tmp_length;
+                        }
+                        else
+                        {
+                            ++tmp_width;
+                        }
+                    }
+                }
+               std::cout << std::endl;
+            } // width for
+        } // length for
 
         std::cout << "counter = " << counter << std::endl;
 
@@ -137,4 +166,6 @@ struct geometry_partitioner : public boost::static_visitor<>
     {
     }
 
+
+    int tile_size_;
 };

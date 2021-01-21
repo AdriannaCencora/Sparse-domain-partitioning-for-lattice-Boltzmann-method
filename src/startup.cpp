@@ -7,7 +7,8 @@
 
 void run_partitioning(app_context& app_ctx)
 {
-    geometry_partitioner partitioner = geometry_partitioner();
+    int dummy_tile_size_ = 3;
+    geometry_partitioner partitioner = geometry_partitioner(dummy_tile_size_);
     boost::apply_visitor(partitioner, app_ctx.geometry_data_store_variant_);
 }
 
