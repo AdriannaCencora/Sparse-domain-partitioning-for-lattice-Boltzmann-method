@@ -1,15 +1,35 @@
 #pragma once
 
-#include <map>
 #include <vector>
+#include <map>
+#include <cstdint>
 
-struct params_per_tile
+enum tile_type
 {
-    uint8_t tile_size_;
-    uint8_t number_of_hits_ = 0; // no more than tile_size_^dimension
-    //uint8_t non_empty_neighbours_amount_;
-    std::vector<std::pair<uint16_t, uint16_t>> relative_hit_coords_; // counted from current coords, which are treated as start point - 0,0,0. To get absoluth location add relative_hit_coords_ to collected_parameters map key value
+    full_area, //area = tile_size^2
+    partial_area // area = tile_size x reminder - edge
 };
 
-typedef std::pair<uint16_t, uint16_t> tile_2d_starting_coords_t;
-//std::map<tile_2d_starting_coords_t, params_per_tile> collected_parameters;
+struct single_tile_parameters
+{
+    single_tile_parameters(uint16_t tile_size, tile_type tile_type)
+        : tile_size_(tile_size), tile_type_(tile_type), number_of_hits_(0)
+    {}
+
+    uint16_t tile_size_;
+    tile_type tile_type_;
+    uint16_t number_of_hits_;
+    float ratio_;
+    std::vector<std::pair<uint16_t, uint16_t>> hit_coords_;
+//    std::pair<uint16_t, uint16_t> starting_tile_offset_x_y_;
+//    std::pair<uint16_t, uint16_t> starting_coords_;
+};
+
+typedef std::pair<uint16_t, uint16_t> starting_coords_2d_t;
+
+struct tiling_parameters_store
+{
+    std::pair<uint16_t, uint16_t> offset_x_y_;
+    std::map<starting_coords_2d_t, single_tile_parameters> empty_tiles_;
+    std::map<starting_coords_2d_t, single_tile_parameters> non_empty_tiles_;
+};

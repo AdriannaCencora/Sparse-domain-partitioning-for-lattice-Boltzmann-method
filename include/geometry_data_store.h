@@ -3,6 +3,7 @@
 #include "tile.h"
 
 #include <vector>
+#include <map>
 #include <iostream> //remove me
 #include <fstream>
 #include <boost/dynamic_bitset.hpp>
@@ -10,6 +11,9 @@
 
 typedef std::vector<boost::dynamic_bitset<>> bitset2d_t;
 typedef std::vector<bitset2d_t> bitset3d_t;
+
+// TOCONSIDER: bitset comparator wrapper? gets starting_point + tile_size as parameter
+// and run logical AND operation on bitset 'slice' and tile (some mask)  for example
 
 struct geometry_2d_data_store
 {
@@ -87,13 +91,15 @@ struct bitset_builder : public boost::static_visitor<>
         }
     }
 
+    private:
     std::fstream& input_file_;
 };
 
 struct geometry_partitioner : public boost::static_visitor<>
 {
-    geometry_partitioner(int tile_size)
-        : tile_size_(tile_size)
+    geometry_partitioner(uint16_t tile_size,
+                         tiling_parameters_store& tiling_parameters_store)
+        : tile_size_(tile_size), tiling_parameters_store_(tiling_parameters_store)
     {}
 
     int counter = 0;
@@ -107,11 +113,14 @@ struct geometry_partitioner : public boost::static_visitor<>
         {
             for (int width = 0; width <= geometry.width_ - tile_size_; width += tile_size_)
             {
+                single_tile_parameters single_tile_parameters = {tile_size_,
+                                                                 tile_type::full_area};
+
                 int tmp_width = width;
                 int tmp_length = length;
                 int max_width = width + tile_size_ - 1;
                 int tile_area = tile_size_ * tile_size_;
-                std::cout << "WIDTH x LENGTH " << width << "x" << length << "   ";
+              //  std::cout << "WIDTH x LENGTH " << width << "x" << length << "   ";
 
                 if ((length == last_length_to_be_processed) and remainder)
                 {
@@ -121,10 +130,13 @@ struct geometry_partitioner : public boost::static_visitor<>
 
                 for (int current_point_counter = 0; current_point_counter < tile_area; ++current_point_counter)
                 {
+                    // hit
                     if (geometry.bitset2d_[tmp_length].test(tmp_width))
                     {
+                        single_tile_parameters.number_of_hits_++;
+                        single_tile_parameters.hit_coords_.push_back(
+                                std::make_pair(tmp_width, tmp_length));
                         ++counter;
-            //            std::cout << "[" << tmp_width << ", " << tmp_length << "] ";
                     }
 
                     if (tmp_width == max_width)
@@ -138,13 +150,30 @@ struct geometry_partitioner : public boost::static_visitor<>
                     }
                 }
 
+                starting_coords_2d_t starting_coords = std::make_pair(width, length);
+                if (single_tile_parameters.number_of_hits_)
+                {
+                    std::cout << "HITS: " << single_tile_parameters.number_of_hits_ << " ";
+                    tiling_parameters_store_.non_empty_tiles_.emplace(
+                            std::make_pair(starting_coords, single_tile_parameters));
+                }
+                else
+                {
+                    tiling_parameters_store_.empty_tiles_.emplace(
+                            std::make_pair(starting_coords, single_tile_parameters));
+                }
+
                 int last_processed_width = (geometry.width_ / tile_size_) * tile_size_ - tile_size_;
                 if ((width == last_processed_width) and remainder)
                 {
+
+                    single_tile_parameters = {tile_size_, tile_type::partial_area};
+
                     max_width = max_width + remainder;
                     tmp_width = width + tile_size_;
                     tmp_length = length;
                     tile_area = remainder * tile_size_;
+
                     if (last_length_to_be_processed == length)
                     {
                          tile_area = remainder * remainder;
@@ -154,6 +183,9 @@ struct geometry_partitioner : public boost::static_visitor<>
                     {
                         if (geometry.bitset2d_[tmp_length].test(tmp_width))
                         {
+                            single_tile_parameters.number_of_hits_++;
+                            single_tile_parameters.hit_coords_.push_back(
+                                    std::make_pair(tmp_width, tmp_length));
                             ++counter;
                         }
                         if (tmp_width == max_width)
@@ -166,6 +198,20 @@ struct geometry_partitioner : public boost::static_visitor<>
                             ++tmp_width;
                         }
                     }
+
+                    starting_coords_2d_t starting_coords = std::make_pair(width, length);
+                    if (single_tile_parameters.number_of_hits_)
+                    {
+                        tiling_parameters_store_.non_empty_tiles_.emplace(
+                                std::make_pair(starting_coords, single_tile_parameters));
+                    }
+                    else
+                    {
+                        tiling_parameters_store_.non_empty_tiles_.emplace(
+                                std::make_pair(starting_coords, single_tile_parameters));
+                    }
+
+
                 }
                std::cout << std::endl;
             } // width for
@@ -179,6 +225,7 @@ struct geometry_partitioner : public boost::static_visitor<>
     {
     }
 
-
-    int tile_size_;
+private:
+    uint16_t tile_size_;
+    tiling_parameters_store& tiling_parameters_store_;
 };
