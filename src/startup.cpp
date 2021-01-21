@@ -5,9 +5,10 @@
 #include <iostream>
 #include <string>
 
-void run_partitioning()
+void run_partitioning(app_context& app_ctx)
 {
-
+    geometry_partitioner partitioner = geometry_partitioner();
+    boost::apply_visitor(partitioner, app_ctx.geometry_data_store_variant_);
 }
 
 int main(int argc, char* argv[])
@@ -29,7 +30,7 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    run_partitioning();
+    run_partitioning(app_ctx);
 
     return EXIT_SUCCESS;
 }

@@ -46,31 +46,36 @@ struct output_printer : public boost::static_visitor<>
 
 struct bitset_builder : public boost::static_visitor<>
 {
-    bitset_builder(std::fstream& input_file) : input_file_(input_file) {}
+    bitset_builder(std::fstream& input_file)
+        : input_file_(input_file)
+    {}
 
     void operator()(geometry_2d_data_store& geometry)
     {
         std::cout << "Debug: I am inside 2D" <<  std::endl;
-        uint8_t input_value;
-
-            for (int length = 0; length < geometry.length_; ++ length)
+        int input_value;
+        int num_of_hits = 0;
+        for (int length = 0; length < geometry.length_; ++length)
             {
                 for (int width = 0; width < geometry.width_; ++width)
                 {
                     input_file_ >> input_value;
                     geometry.bitset2d_[length].set(width, input_value);
                 }
+                num_of_hits += geometry.bitset2d_[length].count();
+                std::cout << std::endl;
             }
+                std::cout << "COUNT: " << num_of_hits << std::endl;
     }
 
     void operator()(geometry_3d_data_store& geometry)
     {
         std::cout << "Debug: I am inside 3D" <<  std::endl;
-        uint8_t input_value;
+        int input_value;
 
         for (int height = 0; height < geometry.height_; ++height)
         {
-            for (int length = 0; length < geometry.length_; ++ length)
+            for (int length = 0; length < geometry.length_; ++length)
             {
                 for (int width = 0; width < geometry.width_; ++width)
                 {
@@ -82,4 +87,54 @@ struct bitset_builder : public boost::static_visitor<>
     }
 
     std::fstream& input_file_;
+};
+
+struct geometry_partitioner : public boost::static_visitor<>
+{
+    int tile_size = 3;
+    int counter = 0;
+
+    void operator()(const geometry_2d_data_store& geometry)
+    {
+        for (int length = 0; length < geometry.length_ - tile_size; length += tile_size)
+        {
+            for (int width = 0; width < geometry.width_ - tile_size; width += tile_size)
+            {
+                int tmp_width = width;
+                int tmp_length = length;
+                int max_width = width + tile_size - 1;
+
+                std::cout << "WIDTH x LENGTH " << width << "x" << length << "   ";
+
+                for (int current_point_counter = 0; current_point_counter < (tile_size * tile_size); ++current_point_counter)
+                {
+                    if (geometry.bitset2d_[tmp_length].test(tmp_width))
+                    {
+                        ++counter;
+                        std::cout << "[" << tmp_width << ", " << tmp_length << "] ";
+                    }
+
+                    if (tmp_width == max_width)
+                    {
+                        tmp_width = width;
+                        ++tmp_length;
+                    }
+                    else
+                    {
+                        ++tmp_width;
+                    }
+                }
+                std::cout << std::endl;
+               // apply_tiling(width, length, tile_size);
+            }
+        }
+
+        std::cout << "counter = " << counter << std::endl;
+
+    }
+
+    void operator()(const geometry_3d_data_store& geometry)
+    {
+    }
+
 };
