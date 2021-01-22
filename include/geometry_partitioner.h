@@ -5,15 +5,25 @@
 
 struct geometry_partitioner : public boost::static_visitor<>
 {
-    geometry_partitioner(const uint16_t tile_size,
-                         tiling_parameters_store& tiling_parameters_store)
-    : tile_size_(tile_size), tiling_parameters_store_(tiling_parameters_store)
+    geometry_partitioner(const size_t tile_size,
+                         std::vector<tiling_parameters_store>& all_tiling_parameters_store)
+    : tile_size_(tile_size), all_tiling_parameters_store_(all_tiling_parameters_store)
     {}
 
     void operator()(const geometry_2d_data_store& geometry);
     void operator()(const geometry_3d_data_store& geometry);
 
 private:
-    const uint16_t tile_size_;
-    tiling_parameters_store& tiling_parameters_store_;
+    const size_t tile_size_;
+    std::vector<tiling_parameters_store>& all_tiling_parameters_store_;
 };
+
+tiling_parameters_store collect_tiling_parameters_per_config(
+                                            const geometry_2d_data_store& geometry,
+                                            const std::pair<size_t, size_t> current_offset,
+                                            const size_t tile_size);
+
+single_tile_parameters collect_single_tile_parameters(
+                                            const geometry_2d_data_store& geometry,
+                                            const std::pair<size_t, size_t> starting_coords,
+                                            const size_t tile_size);

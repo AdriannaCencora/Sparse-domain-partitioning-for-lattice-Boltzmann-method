@@ -13,17 +13,17 @@ typedef std::vector<bitset2d_t> bitset3d_t;
 
 struct geometry_2d_data_store
 {
-    uint16_t width_;
-    uint16_t length_;
+    size_t width_;
+    size_t length_;
 
     bitset2d_t bitset2d_;
 };
 
 struct geometry_3d_data_store
 {
-    uint16_t width_;
-    uint16_t length_;
-    uint16_t height_;
+    size_t width_;
+    size_t length_;
+    size_t height_;
 
     bitset3d_t bitset3d_;
 };
