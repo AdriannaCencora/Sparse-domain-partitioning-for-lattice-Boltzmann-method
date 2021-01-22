@@ -1,6 +1,7 @@
 #pragma once
 
 #include "geometry_data_store.h"
+#include "tile.h"
 
 struct app_context
 {

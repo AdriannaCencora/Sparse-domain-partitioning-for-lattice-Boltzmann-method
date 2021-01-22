@@ -1,0 +1,50 @@
+#pragma once
+
+#include "geometry_data_store.h"
+
+#include <fstream>
+
+struct bitset_builder : public boost::static_visitor<>
+{
+    bitset_builder(std::fstream& input_file)
+        : input_file_(input_file)
+    {}
+
+    void operator()(geometry_2d_data_store& geometry)
+    {
+        std::cout << "Debug: I am inside 2D" <<  std::endl;
+        int input_value;
+        uint16_t num_of_hits = 0;
+        for (uint16_t length = 0; length < geometry.length_; ++length)
+            {
+                for (uint16_t width = 0; width < geometry.width_; ++width)
+                {
+                    input_file_ >> input_value;
+                    geometry.bitset2d_[length].set(width, input_value);
+                }
+                num_of_hits += geometry.bitset2d_[length].count();
+            }
+                std::cout << "COUNT: " << num_of_hits << std::endl;
+    }
+
+    void operator()(geometry_3d_data_store& geometry)
+    {
+        std::cout << "Debug: I am inside 3D" <<  std::endl;
+        int input_value;
+
+        for (uint16_t height = 0; height < geometry.height_; ++height)
+        {
+            for (uint16_t length = 0; length < geometry.length_; ++length)
+            {
+                for (uint16_t width = 0; width < geometry.width_; ++width)
+                {
+                    input_file_ >> input_value;
+                    geometry.bitset3d_[height][length].set(width, input_value);
+                }
+            }
+        }
+    }
+
+    private:
+    std::fstream& input_file_;
+};
