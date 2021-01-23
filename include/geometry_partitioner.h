@@ -23,7 +23,6 @@ tiling_parameters_store collect_tiling_parameters_per_config(
                                             const std::pair<size_t, size_t> current_offset,
                                             const size_t tile_size);
 
-single_tile_parameters collect_single_tile_parameters(
-                                            const geometry_2d_data_store& geometry,
-                                            const std::pair<size_t, size_t> starting_coords,
-                                            const size_t tile_size);
+single_tile_parameters apply_tiling(const geometry_2d_data_store& geometry,
+                                    const std::pair<size_t, size_t> starting_coords,
+                                    const std::pair<size_t, size_t> distance);
