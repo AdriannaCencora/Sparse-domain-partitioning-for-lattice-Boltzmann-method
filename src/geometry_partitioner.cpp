@@ -9,7 +9,7 @@ void geometry_partitioner::operator()(const geometry_2d_data_store& geometry)
         {
             //collects parameters for one specific configuration (size, offset)
             all_tiling_parameters_store_.push_back(
-                    collect_tiling_parameters_per_config(geometry,
+                    collect_tiling_parameters(geometry,
                                                          std::make_pair(offset_x, offset_y),
                                                          tile_size_));
         }
@@ -20,7 +20,7 @@ void geometry_partitioner::operator()(const geometry_3d_data_store& geometry)
 {
 }
 
-tiling_parameters_store collect_tiling_parameters_per_config(
+tiling_parameters_store collect_tiling_parameters(
                                             const geometry_2d_data_store& geometry,
                                             const std::pair<size_t, size_t> offset,
                                             const size_t tile_size)
@@ -41,7 +41,8 @@ tiling_parameters_store collect_tiling_parameters_per_config(
     {
         for (size_t width = offset.first; width <= max_width; width += tile_size)
         {
-            single_tile_parameters single_tile_parameters = {};
+            tile tile = {};
+            tile_remainder tile_remainder = {};
 
             starting_coords_2d_t starting_coords;
 
@@ -53,22 +54,20 @@ tiling_parameters_store collect_tiling_parameters_per_config(
             {
                 starting_coords = std::make_pair(width, 0);
 
-                single_tile_parameters = apply_tiling(geometry,
+                tile_remainder = apply_remainders_tiling(geometry,
                                                       starting_coords,
                                                       std::make_pair(tile_size, offset.second));
 
-                single_tile_parameters.tile_size_ = tile_size;
-
-                if (single_tile_parameters.number_of_hits_)
+                if (tile_remainder.number_of_hits_)
                 {
-                    tiling_parameters_store.partial_non_empty_tiles_.emplace(
-                            std::make_pair(starting_coords, single_tile_parameters));
-            tiling_parameters_store.total_hits_ += single_tile_parameters.number_of_hits_;
+                    tiling_parameters_store.non_empty_remainders_.emplace(
+                            std::make_pair(starting_coords, tile_remainder));
+//            tiling_parameters_store.total_hits_ += tile.number_of_hits_;
                 }
                 else
                 {
-                    tiling_parameters_store.partial_empty_tiles_.emplace(
-                            std::make_pair(starting_coords, single_tile_parameters));
+                    tiling_parameters_store.empty_remainders_.emplace(
+                            std::make_pair(starting_coords, tile_remainder));
                 }
             }
 
@@ -76,70 +75,68 @@ tiling_parameters_store collect_tiling_parameters_per_config(
             if (offset.first != 0 and width == offset.first)
             {
                 starting_coords = std::make_pair(0, length);
-                single_tile_parameters = apply_tiling(geometry,
+                tile_remainder = apply_remainders_tiling(geometry,
                                                       starting_coords,
                                                       std::make_pair(offset.first, tile_size));
 
-                single_tile_parameters.tile_size_ = tile_size;
-
-                if (single_tile_parameters.number_of_hits_)
+                if (tile_remainder.number_of_hits_)
                 {
-                    tiling_parameters_store.partial_non_empty_tiles_.emplace(
-                            std::make_pair(starting_coords, single_tile_parameters));
-            tiling_parameters_store.total_hits_ += single_tile_parameters.number_of_hits_;
+                    tiling_parameters_store.non_empty_remainders_.emplace(
+                            std::make_pair(starting_coords, tile_remainder));
+  //          tiling_parameters_store.total_hits_ += tile.number_of_hits_;
                 }
                 else
                 {
-                    tiling_parameters_store.partial_empty_tiles_.emplace(
-                            std::make_pair(starting_coords, single_tile_parameters));
+                    tiling_parameters_store.empty_remainders_.emplace(
+                            std::make_pair(starting_coords, tile_remainder));
                 }
 
             }
 
+            // normal tiles start
             starting_coords = std::make_pair(width, length);
 
-            single_tile_parameters = apply_tiling(geometry,
-                                                  starting_coords,
-                                                  std::make_pair(tile_size, tile_size));
+            tile = apply_tiling(geometry, starting_coords, tile_size);
 
-            single_tile_parameters.tile_size_ = tile_size;
-
-
-            if (single_tile_parameters.number_of_hits_)
+            if (tile.number_of_hits_)
             {
+                // TODO: Remove me - use modifiers functions instead
                 ++tiling_parameters_store.total_tiles_with_hits_;
+                tiling_parameters_store.total_hits_ += tile.number_of_hits_;
+
                 tiling_parameters_store.non_empty_tiles_.emplace(
-                        std::make_pair(starting_coords, single_tile_parameters));
-            tiling_parameters_store.total_hits_ += single_tile_parameters.number_of_hits_;
+                        std::make_pair(starting_coords, tile));
+
             }
             else
             {
                 tiling_parameters_store.empty_tiles_.emplace(
-                        std::make_pair(starting_coords, single_tile_parameters));
+                        std::make_pair(starting_coords, tile));
             }
 
+            // normal tiles end
+
             // handle remainder - the right most columns
+            // TODO: extract to function
             if (remainder_width and width == last_width)
             {
                 starting_coords = std::make_pair((last_width + tile_size), length);
 
-                single_tile_parameters = apply_tiling(geometry,
+                tile_remainder = apply_remainders_tiling(geometry,
                                                       starting_coords,
                                                       std::make_pair(remainder_width,
                                                                      tile_size));
 
-                single_tile_parameters.tile_size_ = tile_size;
-
-                if (single_tile_parameters.number_of_hits_)
+                if (tile_remainder.number_of_hits_)
                 {
-                    tiling_parameters_store.partial_non_empty_tiles_.emplace(
-                            std::make_pair(starting_coords, single_tile_parameters));
-            tiling_parameters_store.total_hits_ += single_tile_parameters.number_of_hits_;
+                    tiling_parameters_store.non_empty_remainders_.emplace(
+                            std::make_pair(starting_coords, tile_remainder));
+         //   tiling_parameters_store.total_hits_ += tile.number_of_hits_;
                 }
                 else
                 {
-                    tiling_parameters_store.partial_empty_tiles_.emplace(
-                            std::make_pair(starting_coords, single_tile_parameters));
+                    tiling_parameters_store.empty_remainders_.emplace(
+                            std::make_pair(starting_coords, tile_remainder));
                 }
             }
 
@@ -148,23 +145,20 @@ tiling_parameters_store collect_tiling_parameters_per_config(
             {
                 starting_coords = std::make_pair(width, (last_length + tile_size));
 
-                single_tile_parameters = apply_tiling(geometry,
-                                                      starting_coords,
-                                                      std::make_pair(tile_size,
-                                                                     remainder_length));
+                tile_remainder = apply_remainders_tiling(geometry, starting_coords,
+                                    std::make_pair(tile_size, remainder_length));
 
-                single_tile_parameters.tile_size_ = tile_size;
 
-                if (single_tile_parameters.number_of_hits_)
+                if (tile_remainder.number_of_hits_)
                 {
-            tiling_parameters_store.total_hits_ += single_tile_parameters.number_of_hits_;
-                    tiling_parameters_store.partial_non_empty_tiles_.emplace(
-                            std::make_pair(starting_coords, single_tile_parameters));
+        //    tiling_parameters_store.total_hits_ += tile.number_of_hits_;
+                    tiling_parameters_store.non_empty_remainders_.emplace(
+                            std::make_pair(starting_coords, tile_remainder));
                 }
                 else
                 {
-                    tiling_parameters_store.partial_empty_tiles_.emplace(
-                            std::make_pair(starting_coords, single_tile_parameters));
+                    tiling_parameters_store.empty_remainders_.emplace(
+                            std::make_pair(starting_coords, tile_remainder));
                 }
             }
 
@@ -175,11 +169,37 @@ tiling_parameters_store collect_tiling_parameters_per_config(
 }
 
 
-single_tile_parameters apply_tiling(const geometry_2d_data_store& geometry,
-                                    const std::pair<size_t, size_t> starting_coords,
-                                    const std::pair<size_t, size_t> distance)
+tile apply_tiling(const geometry_2d_data_store& geometry,
+                  const std::pair<size_t, size_t> starting_coords,
+                  const size_t tile_size)
 {
-    single_tile_parameters single_tile_parameters = {};
+    tile tile = {};
+    tile.tile_size_ = tile_size;
+
+    std::cout << "LENGTHxWIDTH " << starting_coords.second << "x" << starting_coords.first << "   ";
+    for (size_t y = starting_coords.second; y < starting_coords.second + tile_size; ++y)
+    {
+        for (size_t x = starting_coords.first; x < starting_coords.first + tile_size; ++x)
+        {
+            if (geometry.bitset2d_[y].test(x))
+            {
+                tile.number_of_hits_++;
+                tile.hit_coords_.push_back(std::make_pair(x, y));
+                std::cout << y << "x" << x <<": " << geometry.bitset2d_[y][x] << " ";
+            }
+        }
+    }
+
+    std::cout << std::endl;
+    return tile;
+}
+
+tile_remainder apply_remainders_tiling(const geometry_2d_data_store& geometry,
+                                       const std::pair<size_t, size_t> starting_coords,
+                                       const std::pair<size_t, size_t> distance)
+{
+    tile_remainder tile_remainder = {};
+    tile_remainder.dimensions_ = distance;
 
     std::cout << "LENGTHxWIDTH " << starting_coords.second << "x" << starting_coords.first << "   ";
     for (size_t y = starting_coords.second; y < starting_coords.second + distance.second; ++y)
@@ -188,13 +208,13 @@ single_tile_parameters apply_tiling(const geometry_2d_data_store& geometry,
         {
             if (geometry.bitset2d_[y].test(x))
             {
-                single_tile_parameters.number_of_hits_++;
-                single_tile_parameters.hit_coords_.push_back(std::make_pair(x, y));
+                tile_remainder.number_of_hits_++;
+                tile_remainder.hit_coords_.push_back(std::make_pair(x, y));
                 std::cout << y << "x" << x <<": " << geometry.bitset2d_[y][x] << " ";
             }
         }
     }
 
     std::cout << std::endl;
-    return single_tile_parameters;
+    return tile_remainder;
 }

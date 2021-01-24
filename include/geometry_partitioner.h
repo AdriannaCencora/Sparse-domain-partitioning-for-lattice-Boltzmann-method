@@ -18,11 +18,15 @@ private:
     std::vector<tiling_parameters_store>& all_tiling_parameters_store_;
 };
 
-tiling_parameters_store collect_tiling_parameters_per_config(
+tiling_parameters_store collect_tiling_parameters(
                                             const geometry_2d_data_store& geometry,
                                             const std::pair<size_t, size_t> current_offset,
                                             const size_t tile_size);
 
-single_tile_parameters apply_tiling(const geometry_2d_data_store& geometry,
-                                    const std::pair<size_t, size_t> starting_coords,
-                                    const std::pair<size_t, size_t> distance);
+tile apply_tiling(const geometry_2d_data_store& geometry,
+                  const std::pair<size_t, size_t> starting_coords,
+                  const size_t tile_size);
+
+tile_remainder apply_remainders_tiling(const geometry_2d_data_store& geometry,
+                                       const std::pair<size_t, size_t> starting_coords,
+                                       const std::pair<size_t, size_t> distance);
