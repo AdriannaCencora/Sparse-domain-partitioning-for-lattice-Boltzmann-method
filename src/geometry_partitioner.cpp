@@ -4,6 +4,7 @@
 
 #include <tuple>
 
+//TODO: Refactor file. Extract functions, refactor types and naming
 void geometry_partitioner::operator()(const geometry_2d_data_store& geometry)
 {
 
@@ -54,13 +55,6 @@ tiling_2d_parameters_store collect_tiling_parameters(const geometry_2d_data_stor
 
     size_t last_width = geometry.width_ - remainder_width - tile_size;
     size_t last_length = geometry.length_ - remainder_length - tile_size;
-
-    std::cout << "!!!!!!!!!!!!" << std::endl;
-    std::cout << "remainder_width: " << remainder_width << std::endl;
-    std::cout << "remainder_length: " << remainder_length << std::endl;
-    std::cout << "last_width: " << last_width << std::endl;
-    std::cout << "last_length: " << last_length << std::endl;
-
 
     for (size_t length = offset.second; length <= max_length; length += tile_size)
     {

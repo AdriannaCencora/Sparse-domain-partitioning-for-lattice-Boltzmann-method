@@ -6,7 +6,7 @@
 #include <iostream>
 #include <string>
 
-void run_partitioning(app_context& app_ctx)
+void run_partitioning(const app_context& app_ctx)
 {
     for (const auto& tile_size : app_ctx.tile_sizes_collection_)
     {

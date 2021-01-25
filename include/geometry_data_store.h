@@ -8,9 +8,6 @@
 typedef std::vector<boost::dynamic_bitset<>> bitset2d_t;
 typedef std::vector<bitset2d_t> bitset3d_t;
 
-// TOCONSIDER: bitset comparator wrapper? gets starting_point + tile_size as parameter
-// and run logical AND operation on bitset 'slice' and tile (some mask)  for example
-
 struct geometry_2d_data_store
 {
     size_t width_;

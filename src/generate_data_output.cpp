@@ -19,6 +19,7 @@ void generate_data_output(tiling_parameters_store_variant_t& data_store)
     output_file.close();
 }
 
+//TODO: variant is not necessary here. Refactor structures from tile.h
 void file_writer::operator()(const tiling_2d_parameters_store& data_store)
 {
     output_file_ << "GEOMETRY 2D - TILING PARAMETERS" << std::endl;
