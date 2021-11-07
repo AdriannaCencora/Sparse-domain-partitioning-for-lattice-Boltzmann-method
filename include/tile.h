@@ -12,7 +12,7 @@
 // Use dedicated structures instead of tuple and pair for coords representaton
 // variant is unnecessry here
 
-typedef std::pair<size_t, size_t> coords_2d_t;
+typedef std::pair<int, int> coords_2d_t;
 typedef std::tuple<size_t, size_t, size_t> coords_3d_t;
 
 struct tile_2d
@@ -57,13 +57,9 @@ struct tiling_2d_parameters_store
 
     tiling_2d_map_t empty_tiles_;
     tiling_2d_map_t non_empty_tiles_;
-    tiling_2d_remainders_map_t empty_remainders_;
-    tiling_2d_remainders_map_t non_empty_remainders_;
 
     size_t total_hits_ = 0;
     float total_hit_ratio_ = 0.0;
-
-    size_t number_of_missed_hits_ = 0; // hits in remainder
 };
 
 struct tiling_3d_parameters_store
