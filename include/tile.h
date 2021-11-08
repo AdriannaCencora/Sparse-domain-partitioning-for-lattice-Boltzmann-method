@@ -21,6 +21,7 @@ struct tile_2d
     size_t number_of_hits_ = 0;
     float hit_ratio_;
     std::vector<coords_2d_t> hit_coords_;
+    size_t number_of_common_edges_ = 0;
 };
 
 typedef std::map<coords_2d_t, tile_2d> tiling_2d_map_t;
@@ -31,6 +32,7 @@ struct tile_3d
     size_t number_of_hits_ = 0;
     float hit_ratio_;
     std::vector<coords_3d_t> hit_coords_;
+    size_t number_of_common_faces_ = 0;
 };
 
 typedef std::map<coords_3d_t, tile_3d> tiling_3d_map_t;

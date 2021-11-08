@@ -91,6 +91,180 @@ tile_3d& get_tile(tiling_3d_parameters_store& store, const coords_3d_t offset,
 }
 
 
+//TODO: Refactor me (generic function instead), fix counting and move to separate file as helpers
+
+bool test_neighbor(const tiling_2d_parameters_store& store, coords_2d_t neighbor_cords)
+{
+    auto tile_it = store.non_empty_tiles_.find(neighbor_cords);
+
+    if (tile_it != store.non_empty_tiles_.end())
+    {
+        return tile_it->second.number_of_hits_ != 0;
+    }
+
+    return false;
+}
+
+bool test_neighbor(const tiling_3d_parameters_store& store, coords_3d_t neighbor_cords)
+{
+    auto tile_it = store.non_empty_tiles_.find(neighbor_cords);
+
+    if (tile_it != store.non_empty_tiles_.end())
+    {
+        return tile_it->second.number_of_hits_ != 0;
+    }
+
+    return false;
+}
+
+bool test_right_neighbor(const tiling_2d_parameters_store& store, coords_2d_t cords)
+{
+    coords_2d_t neighbor_cords = cords;
+    neighbor_cords.first += store.tile_size_;
+
+    return test_neighbor(store, neighbor_cords);
+}
+
+bool test_left_neighbor(const tiling_2d_parameters_store& store, coords_2d_t cords)
+{
+    coords_2d_t neighbor_cords = cords;
+    neighbor_cords.first -= store.tile_size_;
+
+    return test_neighbor(store, neighbor_cords);
+}
+
+bool test_up_neighbor(const tiling_2d_parameters_store& store, coords_2d_t cords)
+{
+    coords_2d_t neighbor_cords = cords;
+    neighbor_cords.second += store.tile_size_;
+
+    return test_neighbor(store, neighbor_cords);
+}
+
+bool test_down_neighbor(const tiling_2d_parameters_store& store, coords_2d_t cords)
+{
+    coords_2d_t neighbor_cords = cords;
+    neighbor_cords.second -= store.tile_size_;
+
+    return test_neighbor(store, neighbor_cords);
+}
+
+bool test_right_neighbor(const tiling_3d_parameters_store& store, coords_3d_t cords)
+{
+    coords_3d_t neighbor_cords = cords;
+    std::get<0>(neighbor_cords) += store.tile_size_;
+
+    return test_neighbor(store, neighbor_cords);
+}
+
+bool test_left_neighbor(const tiling_3d_parameters_store& store, coords_3d_t cords)
+{
+    coords_3d_t neighbor_cords = cords;
+    std::get<0>(neighbor_cords) -= store.tile_size_;
+
+    return test_neighbor(store, neighbor_cords);
+}
+
+bool test_up_neighbor(const tiling_3d_parameters_store& store, coords_3d_t cords)
+{
+    coords_3d_t neighbor_cords = cords;
+    std::get<1>(neighbor_cords) += store.tile_size_;
+
+    return test_neighbor(store, neighbor_cords);
+}
+
+bool test_down_neighbor(const tiling_3d_parameters_store& store, coords_3d_t cords)
+{
+    coords_3d_t neighbor_cords = cords;
+    std::get<1>(neighbor_cords) -= store.tile_size_;
+
+    return test_neighbor(store, neighbor_cords);
+}
+
+bool test_front_neighbor(const tiling_3d_parameters_store& store, coords_3d_t cords)
+{
+    coords_3d_t neighbor_cords = cords;
+    std::get<2>(neighbor_cords) += store.tile_size_;
+
+    return test_neighbor(store, neighbor_cords);
+}
+
+bool test_back_neighbor(const tiling_3d_parameters_store& store, coords_3d_t cords)
+{
+    coords_3d_t neighbor_cords = cords;
+    std::get<2>(neighbor_cords) -= store.tile_size_;
+
+    return test_neighbor(store, neighbor_cords);
+}
+
+void count_common_edges(tiling_2d_parameters_store& store)
+{
+    for (auto& tile_it : store.non_empty_tiles_)
+    {
+        coords_2d_t cords = tile_it.first;
+
+        if (test_right_neighbor(store, cords))
+        {
+            tile_it.second.number_of_common_edges_++;
+        }
+
+        if (test_left_neighbor(store, cords))
+        {
+            tile_it.second.number_of_common_edges_++;
+        }
+
+        if (test_right_neighbor(store, cords))
+        {
+            tile_it.second.number_of_common_edges_++;
+        }
+
+        if (test_down_neighbor(store, cords))
+        {
+            tile_it.second.number_of_common_edges_++;
+        }
+    }
+}
+
+void count_common_faces(tiling_3d_parameters_store& store)
+{
+    for (auto& tile_it : store.non_empty_tiles_)
+    {
+        coords_3d_t cords = tile_it.first;
+
+        if (test_right_neighbor(store, cords))
+        {
+            tile_it.second.number_of_common_faces_++;
+        }
+
+        if (test_left_neighbor(store, cords))
+        {
+            tile_it.second.number_of_common_faces_++;
+        }
+
+        if (test_right_neighbor(store, cords))
+        {
+            tile_it.second.number_of_common_faces_++;
+        }
+
+        if (test_down_neighbor(store, cords))
+        {
+            tile_it.second.number_of_common_faces_++;
+        }
+
+        if (test_front_neighbor(store, cords))
+        {
+            tile_it.second.number_of_common_faces_++;
+        }
+
+        if (test_back_neighbor(store, cords))
+        {
+            tile_it.second.number_of_common_faces_++;
+        }
+    }
+}
+
+
+
 tiling_2d_parameters_store apply_tiling(const geometry_2d_data_store& geometry,
                                         const coords_2d_t offset,
                                         const size_t tile_size)
@@ -114,7 +288,7 @@ tiling_2d_parameters_store apply_tiling(const geometry_2d_data_store& geometry,
         }
     }
 
-    // filtering empty tiles and calculate some stats
+    // TODO: filtering empty tiles and calculate some stats, extract to separate function
     auto tile_it = store.non_empty_tiles_.begin();
     while (tile_it != store.non_empty_tiles_.end())
     {
@@ -135,6 +309,8 @@ tiling_2d_parameters_store apply_tiling(const geometry_2d_data_store& geometry,
     store.tile_size_ = tile_size;
     store.total_hit_ratio_ = store.total_hits_;
     store.total_hit_ratio_ /= (geometry.width_*geometry.length_);
+    count_common_edges(store);
+
     return store;
 }
 
@@ -184,6 +360,9 @@ tiling_3d_parameters_store apply_tiling(const geometry_3d_data_store& geometry,
     store.tile_size_ = tile_size;
     store.total_hit_ratio_ = store.total_hits_;
     store.total_hit_ratio_ /= (geometry.width_*geometry.length_);
+
+    count_common_faces(store);
+
     return store;
 }
 
