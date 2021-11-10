@@ -18,10 +18,10 @@ private:
     tiling_parameters_store_variant_t data_store_variant_;
 };
 
-tiling_2d_parameters_store apply_tiling(const geometry_2d_data_store& geometry,
-                                        const coords_2d_t offset,
-                                        const size_t tile_size);
+tiling_parameters_store<coords_2d> apply_tiling(const geometry_2d_data_store& geometry,
+                                                const coords_2d offset,
+                                                const size_t tile_size);
 
-tiling_3d_parameters_store apply_tiling(const geometry_3d_data_store& geometry,
-                                        const coords_3d_t offset,
-                                        const size_t tile_size);
+tiling_parameters_store<coords_3d> apply_tiling(const geometry_3d_data_store& geometry,
+                                                const coords_3d offset,
+                                                const size_t tile_size);

@@ -1,6 +1,6 @@
 #include "geometry_partitioner.h"
-#include "tiling_parameters_store_modifiers.h"
 #include "generate_data_output.h"
+#include "helpers.h"
 
 #include <tuple>
 
@@ -12,7 +12,7 @@ void geometry_partitioner::operator()(const geometry_2d_data_store& geometry)
         for (size_t offset_x = 0; offset_x < tile_size_; ++offset_x)
         {
             data_store_variant_ = apply_tiling(geometry,
-                                               std::make_pair(offset_x, offset_y),
+                                               {offset_x, offset_y},
                                                tile_size_);
             generate_data_output(data_store_variant_);
         }
@@ -27,23 +27,25 @@ void geometry_partitioner::operator()(const geometry_3d_data_store& geometry)
         {
             for (size_t offset_x = 0; offset_x < tile_size_; ++offset_x)
             {
+                std::cout << "operator()\n";
                 data_store_variant_ = apply_tiling(geometry,
-                                                   std::make_tuple(offset_x, offset_y, offset_z),
-                                                   tile_size_);
+                                                  {offset_x, offset_y, offset_z},
+                                                  tile_size_);
                 generate_data_output(data_store_variant_);
             }
         }
     }
 }
 
-tile_2d& get_tile(tiling_2d_parameters_store& store, const coords_2d_t offset,
-                  const size_t tile_size, const coords_2d_t point)
+tile<coords_2d>& get_tile(tiling_parameters_store<coords_2d>& store,
+                          const coords_2d offset, const size_t tile_size,
+                          const coords_2d point)
 {
-    size_t x = std::get<0>(point);
-    size_t y = std::get<1>(point);
+    size_t x = point.x;
+    size_t y = point.y;
 
-    int offset_x = std::get<0>(offset);
-    int offset_y = std::get<1>(offset);
+    int offset_x = offset.x;
+    int offset_y = offset.y;
 
     int tile_offset_x = ((tile_size - offset_x) % tile_size);
     int tile_offset_y = ((tile_size - offset_y) % tile_size);
@@ -54,21 +56,23 @@ tile_2d& get_tile(tiling_2d_parameters_store& store, const coords_2d_t offset,
     int tile_x_coord = -tile_offset_x + tile_x_index * tile_size;
     int tile_y_coord = -tile_offset_y + tile_y_index * tile_size;
 
-    coords_2d_t tile_coords = std::make_pair(tile_x_coord, tile_y_coord);
+    coords_2d tile_coords = {tile_x_coord, tile_y_coord};
 
     return store.non_empty_tiles_[tile_coords];
 }
 
-tile_3d& get_tile(tiling_3d_parameters_store& store, const coords_3d_t offset,
-                  const size_t tile_size, const coords_3d_t point)
+tile<coords_3d>& get_tile(tiling_parameters_store<coords_3d>& store,
+                          const coords_3d offset, const size_t tile_size,
+                          const coords_3d point)
 {
-    size_t x = std::get<0>(point);
-    size_t y = std::get<1>(point);
-    size_t z = std::get<2>(point);
+    size_t x = point.x;
+    size_t y = point.y;
+    size_t z = point.z;
 
-    int offset_x = std::get<0>(offset);
-    int offset_y = std::get<1>(offset);
-    int offset_z = std::get<2>(offset);
+    // offset in gemetry
+    int offset_x = offset.x;
+    int offset_y = offset.y;
+    int offset_z = offset.z;
 
     // helper for handling 'reminders'
     int tile_offset_x = ((tile_size - offset_x) % tile_size);
@@ -85,214 +89,37 @@ tile_3d& get_tile(tiling_3d_parameters_store& store, const coords_3d_t offset,
     int tile_y_coord = -tile_offset_y + tile_y_index * tile_size;
     int tile_z_coord = -tile_offset_z + tile_z_index * tile_size;
 
-    coords_3d_t tile_coords = std::make_tuple(tile_x_coord, tile_y_coord, tile_z_coord);
+    coords_3d tile_coords = {tile_x_coord, tile_y_coord, tile_z_coord};
 
     return store.non_empty_tiles_[tile_coords];
 }
 
-
-//TODO: Refactor me (generic function instead), fix counting and move to separate file as helpers
-
-bool test_neighbor(const tiling_2d_parameters_store& store, coords_2d_t neighbor_cords)
+tiling_parameters_store<coords_2d> apply_tiling(const geometry_2d_data_store& geometry,
+                                                const coords_2d offset,
+                                                const size_t tile_size)
 {
-    auto tile_it = store.non_empty_tiles_.find(neighbor_cords);
-
-    if (tile_it != store.non_empty_tiles_.end())
-    {
-        return tile_it->second.number_of_hits_ != 0;
-    }
-
-    return false;
-}
-
-bool test_neighbor(const tiling_3d_parameters_store& store, coords_3d_t neighbor_cords)
-{
-    auto tile_it = store.non_empty_tiles_.find(neighbor_cords);
-
-    if (tile_it != store.non_empty_tiles_.end())
-    {
-        return tile_it->second.number_of_hits_ != 0;
-    }
-
-    return false;
-}
-
-bool test_right_neighbor(const tiling_2d_parameters_store& store, coords_2d_t cords)
-{
-    coords_2d_t neighbor_cords = cords;
-    neighbor_cords.first += store.tile_size_;
-
-    return test_neighbor(store, neighbor_cords);
-}
-
-bool test_left_neighbor(const tiling_2d_parameters_store& store, coords_2d_t cords)
-{
-    coords_2d_t neighbor_cords = cords;
-    neighbor_cords.first -= store.tile_size_;
-
-    return test_neighbor(store, neighbor_cords);
-}
-
-bool test_up_neighbor(const tiling_2d_parameters_store& store, coords_2d_t cords)
-{
-    coords_2d_t neighbor_cords = cords;
-    neighbor_cords.second += store.tile_size_;
-
-    return test_neighbor(store, neighbor_cords);
-}
-
-bool test_down_neighbor(const tiling_2d_parameters_store& store, coords_2d_t cords)
-{
-    coords_2d_t neighbor_cords = cords;
-    neighbor_cords.second -= store.tile_size_;
-
-    return test_neighbor(store, neighbor_cords);
-}
-
-bool test_right_neighbor(const tiling_3d_parameters_store& store, coords_3d_t cords)
-{
-    coords_3d_t neighbor_cords = cords;
-    std::get<0>(neighbor_cords) += store.tile_size_;
-
-    return test_neighbor(store, neighbor_cords);
-}
-
-bool test_left_neighbor(const tiling_3d_parameters_store& store, coords_3d_t cords)
-{
-    coords_3d_t neighbor_cords = cords;
-    std::get<0>(neighbor_cords) -= store.tile_size_;
-
-    return test_neighbor(store, neighbor_cords);
-}
-
-bool test_up_neighbor(const tiling_3d_parameters_store& store, coords_3d_t cords)
-{
-    coords_3d_t neighbor_cords = cords;
-    std::get<1>(neighbor_cords) += store.tile_size_;
-
-    return test_neighbor(store, neighbor_cords);
-}
-
-bool test_down_neighbor(const tiling_3d_parameters_store& store, coords_3d_t cords)
-{
-    coords_3d_t neighbor_cords = cords;
-    std::get<1>(neighbor_cords) -= store.tile_size_;
-
-    return test_neighbor(store, neighbor_cords);
-}
-
-bool test_front_neighbor(const tiling_3d_parameters_store& store, coords_3d_t cords)
-{
-    coords_3d_t neighbor_cords = cords;
-    std::get<2>(neighbor_cords) += store.tile_size_;
-
-    return test_neighbor(store, neighbor_cords);
-}
-
-bool test_back_neighbor(const tiling_3d_parameters_store& store, coords_3d_t cords)
-{
-    coords_3d_t neighbor_cords = cords;
-    std::get<2>(neighbor_cords) -= store.tile_size_;
-
-    return test_neighbor(store, neighbor_cords);
-}
-
-void count_common_edges(tiling_2d_parameters_store& store)
-{
-    for (auto& tile_it : store.non_empty_tiles_)
-    {
-        coords_2d_t cords = tile_it.first;
-
-        if (test_right_neighbor(store, cords))
-        {
-            tile_it.second.number_of_common_edges_++;
-        }
-
-        if (test_left_neighbor(store, cords))
-        {
-            tile_it.second.number_of_common_edges_++;
-        }
-
-        if (test_right_neighbor(store, cords))
-        {
-            tile_it.second.number_of_common_edges_++;
-        }
-
-        if (test_down_neighbor(store, cords))
-        {
-            tile_it.second.number_of_common_edges_++;
-        }
-    }
-}
-
-void count_common_faces(tiling_3d_parameters_store& store)
-{
-    for (auto& tile_it : store.non_empty_tiles_)
-    {
-        coords_3d_t cords = tile_it.first;
-
-        if (test_right_neighbor(store, cords))
-        {
-            tile_it.second.number_of_common_faces_++;
-        }
-
-        if (test_left_neighbor(store, cords))
-        {
-            tile_it.second.number_of_common_faces_++;
-        }
-
-        if (test_right_neighbor(store, cords))
-        {
-            tile_it.second.number_of_common_faces_++;
-        }
-
-        if (test_down_neighbor(store, cords))
-        {
-            tile_it.second.number_of_common_faces_++;
-        }
-
-        if (test_front_neighbor(store, cords))
-        {
-            tile_it.second.number_of_common_faces_++;
-        }
-
-        if (test_back_neighbor(store, cords))
-        {
-            tile_it.second.number_of_common_faces_++;
-        }
-    }
-}
-
-
-
-tiling_2d_parameters_store apply_tiling(const geometry_2d_data_store& geometry,
-                                        const coords_2d_t offset,
-                                        const size_t tile_size)
-{
-    tiling_2d_parameters_store store = {};
+    tiling_parameters_store<coords_2d> store = {};
     store.offset_ = offset;
 
     for (size_t pos_y = 0; pos_y < geometry.length_; ++pos_y)
     {
         for (size_t pos_x = 0; pos_x < geometry.width_; ++pos_x)
         {
-            coords_2d_t cords = std::make_pair(pos_x, pos_y);
-
-            tile_2d& tile = get_tile(store, offset, tile_size, cords);
+            coords_2d cords = {pos_x, pos_y};
+            tile<coords_2d>& tile = get_tile(store, offset, tile_size, cords);
 
             if (geometry.bitset2d_[pos_y].test(pos_x))
             {
-                tile.hit_coords_.push_back(std::make_pair(pos_x, pos_y));
+                tile.hit_coords_.push_back({pos_x, pos_y});
                 tile.number_of_hits_ += 1;
             }
         }
     }
 
-    // TODO: filtering empty tiles and calculate some stats, extract to separate function
+    //TODO: filtering empty tiles and calculate some stats, extract to separate function
     auto tile_it = store.non_empty_tiles_.begin();
     while (tile_it != store.non_empty_tiles_.end())
     {
-        tile_it->second.tile_size_ = tile_size;
         if (tile_it->second.number_of_hits_ == 0)
         {
             store.empty_tiles_[tile_it->first] = tile_it->second;
@@ -309,16 +136,17 @@ tiling_2d_parameters_store apply_tiling(const geometry_2d_data_store& geometry,
     store.tile_size_ = tile_size;
     store.total_hit_ratio_ = store.total_hits_;
     store.total_hit_ratio_ /= (geometry.width_*geometry.length_);
+
     count_common_edges(store);
 
     return store;
 }
 
-tiling_3d_parameters_store apply_tiling(const geometry_3d_data_store& geometry,
-                                        const coords_3d_t offset,
-                                        const size_t tile_size)
+tiling_parameters_store<coords_3d> apply_tiling(const geometry_3d_data_store& geometry,
+                                                const coords_3d offset,
+                                                const size_t tile_size)
 {
-    tiling_3d_parameters_store store = {};
+    tiling_parameters_store<coords_3d> store = {};
     store.offset_ = offset;
 
     for (size_t pos_z = 0; pos_z < geometry.height_; ++pos_z)
@@ -327,23 +155,21 @@ tiling_3d_parameters_store apply_tiling(const geometry_3d_data_store& geometry,
         {
             for (size_t pos_x = 0; pos_x < geometry.width_; ++pos_x)
             {
-                coords_3d_t cords = std::make_tuple(pos_x, pos_y, pos_z);
-                tile_3d& tile = get_tile(store, offset, tile_size, cords);
+                coords_3d cords = {pos_x, pos_y, pos_z};
+                tile<coords_3d>& tile = get_tile(store, offset, tile_size, cords);
 
                 if (geometry.bitset3d_[pos_z][pos_y].test(pos_x))
                 {
-                    tile.hit_coords_.push_back(std::make_tuple(pos_x, pos_y, pos_z));
+                    tile.hit_coords_.push_back({pos_x, pos_y, pos_z});
                     tile.number_of_hits_ += 1;
                 }
             }
         }
     }
-
-    // filtering empty tiles and calculate some stats
+    // TODO: filtering empty tiles and calculate some stats, extract to separate function
     auto tile_it = store.non_empty_tiles_.begin();
     while (tile_it != store.non_empty_tiles_.end())
     {
-        tile_it->second.tile_size_ = tile_size;
         if (tile_it->second.number_of_hits_ == 0)
         {
             store.empty_tiles_[tile_it->first] = tile_it->second;
@@ -365,4 +191,3 @@ tiling_3d_parameters_store apply_tiling(const geometry_3d_data_store& geometry,
 
     return store;
 }
-

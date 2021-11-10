@@ -19,14 +19,13 @@ void generate_data_output(tiling_parameters_store_variant_t& data_store)
     output_file.close();
 }
 
-//TODO: variant is not necessary here. Refactor structures from tile.h
-void file_writer::operator()(const tiling_2d_parameters_store& data_store)
+void file_writer::operator()(const tiling_parameters_store<coords_2d>& data_store)
 {
     output_file_ << "GEOMETRY 2D - TILING PARAMETERS" << std::endl;
 
     output_file_ << "Tile size: " << data_store.tile_size_ << std::endl;
-    output_file_ << "Offset: " << data_store.offset_.first << ", " <<
-        data_store.offset_.second << std::endl;
+    output_file_ << "Offset: " << data_store.offset_.x << ", " <<
+        data_store.offset_.y << std::endl;
     output_file_ << "Empty tiles: " << data_store.empty_tiles_.size() << std::endl;
     output_file_ << "Non empty tiles: " << data_store.non_empty_tiles_.size() << std::endl;
 
@@ -36,35 +35,34 @@ void file_writer::operator()(const tiling_2d_parameters_store& data_store)
     output_file_ << "Start coords : number of hits : common edges" << std::endl;
     for (const auto& el : data_store.non_empty_tiles_)
     {
-        output_file_ << "(" <<  el.first.first << ", " << el.first.second << ") : " <<
-             el.second.number_of_hits_ << " : " << el.second.number_of_common_edges_ << ", ";
+        output_file_ << "(" <<  el.first.x << ", " << el.first.y << ") : " <<
+             el.second.number_of_hits_ << " : " << el.second.number_of_common_sides_ << ", ";
     }
 
      output_file_ << std::endl << std::endl << std::endl << std::endl;
 }
 
-void file_writer::operator()(const tiling_3d_parameters_store& data_store)
+void file_writer::operator()(const tiling_parameters_store<coords_3d>& data_store)
 {
     output_file_ << "GEOMETRY 3D - TILING PARAMETERS" << std::endl;
 
     output_file_ << "Tile size: " << data_store.tile_size_ << std::endl;
-    output_file_ << "Offset xyz: " << std::get<0>(data_store.offset_) << ", " <<
-        std::get<1>(data_store.offset_)<< ", "<<
-        std::get<2>(data_store.offset_)<<  std::endl;
+    output_file_ << "Offset xyz: " << data_store.offset_.x << ", " <<
+        data_store.offset_.y<< ", "<<
+        data_store.offset_.z<<  std::endl;
     output_file_ << "Empty tiles: " << data_store.empty_tiles_.size() << std::endl;
     output_file_ << "Non empty tiles: " << data_store.non_empty_tiles_.size() << std::endl;
 
     output_file_ << "Total hits: " << data_store.total_hits_ << std::endl;
     output_file_ << "Total hit ratio: " << data_store.total_hit_ratio_ << std::endl;
 
-    output_file_ << "Start coords : number of hits : common faces" << std::endl;
+    output_file_ << "Start coords : number of hits : common faces " << std::endl;
     for (const auto& el : data_store.non_empty_tiles_)
     {
-        output_file_ << "(" <<  std::get<0>(el.first) << ", " << std::get<1>(el.first) << ", " <<
-           std::get<2>(el.first) << ") : " << el.second.number_of_hits_ <<
-          " : " << el.second.number_of_common_faces_ <<  ", ";
+        output_file_ << "(" <<  el.first.x << ", " << el.first.y << ", " <<
+           el.first.z << ") : " << el.second.number_of_hits_ <<
+           " : " << el.second.number_of_common_sides_ << ", ";
     }
 
      output_file_ << std::endl << std::endl << std::endl << std::endl;
-
 }

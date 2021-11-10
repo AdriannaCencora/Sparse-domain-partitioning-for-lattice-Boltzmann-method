@@ -13,8 +13,8 @@ struct file_writer : public boost::static_visitor<>
         : output_file_(output_file)
     {}
 
-    void operator()(const tiling_2d_parameters_store& data_store);
-    void operator()(const tiling_3d_parameters_store& data_store);
+    void operator()(const tiling_parameters_store<coords_2d>& data_store);
+    void operator()(const tiling_parameters_store<coords_3d>& data_store);
 
 private:
     std::fstream& output_file_;
