@@ -54,17 +54,18 @@ struct coords_3d
 
     bool operator<(const coords_3d& other) const
     {
-        return x < other.x or (x == other.x and y < other.y) or (x == other.x and y == other.y and z < other.z);
+        return x < other.x or (x == other.x and y < other.y)
+               or (x == other.x and y == other.y and z < other.z);
     }
 };
 
 template<typename CoordsType>
 struct tile
 {
-    size_t number_of_hits_ = 0;
-    float hit_ratio_;
+    std::size_t number_of_hits_ = 0;
+    float hit_ratio_ = 0;
     std::vector<CoordsType> hit_coords_;
-    size_t number_of_common_sides_ = 0;
+    std::size_t number_of_common_sides_ = 0;
 };
 
 template<typename CoordsType>
@@ -74,12 +75,12 @@ template<typename CoordsType>
 struct tiling_parameters_store
 {
     CoordsType offset_;
-    size_t tile_size_;
+    std::size_t tile_size_;
 
     tiling_map_t<CoordsType> empty_tiles_;
     tiling_map_t<CoordsType> non_empty_tiles_;
 
-    size_t total_hits_ = 0;
+    std::size_t total_hits_ = 0;
     float total_hit_ratio_ = 0.0;
 };
 

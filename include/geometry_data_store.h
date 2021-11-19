@@ -10,17 +10,17 @@ typedef std::vector<bitset2d_t> bitset3d_t;
 
 struct geometry_2d_data_store
 {
-    size_t width_;
-    size_t length_;
+    std::size_t width_;
+    std::size_t length_;
 
     bitset2d_t bitset2d_;
 };
 
 struct geometry_3d_data_store
 {
-    size_t width_;
-    size_t length_;
-    size_t height_;
+    std::size_t width_;
+    std::size_t length_;
+    std::size_t height_;
 
     bitset3d_t bitset3d_;
 };

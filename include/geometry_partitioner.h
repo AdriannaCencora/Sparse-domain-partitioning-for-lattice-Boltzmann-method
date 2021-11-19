@@ -6,7 +6,7 @@
 
 struct geometry_partitioner : public boost::static_visitor<>
 {
-    geometry_partitioner(const size_t tile_size)
+    geometry_partitioner(const std::size_t tile_size)
     : tile_size_(tile_size)
     {}
 
@@ -14,14 +14,22 @@ struct geometry_partitioner : public boost::static_visitor<>
     void operator()(const geometry_3d_data_store& geometry);
 
 private:
-    const size_t tile_size_;
+    const std::size_t tile_size_;
     tiling_parameters_store_variant_t data_store_variant_;
 };
 
+tile<coords_2d>& get_tile(tiling_parameters_store<coords_2d>& store,
+                          const coords_2d& offset, const std::size_t tile_size,
+                          const coords_2d& current_coord);
+
+tile<coords_3d>& get_tile(tiling_parameters_store<coords_3d>& store,
+                          const coords_3d& offset, const std::size_t tile_size,
+                          const coords_3d& current_coord);
+
 tiling_parameters_store<coords_2d> apply_tiling(const geometry_2d_data_store& geometry,
-                                                const coords_2d offset,
-                                                const size_t tile_size);
+                                                const coords_2d& offset,
+                                                const std::size_t tile_size);
 
 tiling_parameters_store<coords_3d> apply_tiling(const geometry_3d_data_store& geometry,
-                                                const coords_3d offset,
-                                                const size_t tile_size);
+                                                const coords_3d& offset,
+                                                const std::size_t tile_size);
