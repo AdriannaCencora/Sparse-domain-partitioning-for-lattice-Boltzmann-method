@@ -37,3 +37,7 @@ void prepare_tiles(const geometry_2d_data_store& geometry,
 
 void prepare_tiles(const geometry_3d_data_store& geometry,
                    tiling_parameters_store<coords_3d>& store);
+
+void process_tiles(tiling_parameters_store<coords_2d>& store,
+                   const std::size_t tile_area,
+                   const std::size_t geometry_area);

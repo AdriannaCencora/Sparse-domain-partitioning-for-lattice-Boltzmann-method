@@ -48,24 +48,9 @@ tiling_parameters_store<coords_2d> apply_tiling(const geometry_2d_data_store& ge
 
     prepare_tiles(geometry, store);
 
-    //TODO: filtering empty tiles and calculate some stats, extract to separate function
-    auto tile_it = store.non_empty_tiles_.begin();
-    while (tile_it != store.non_empty_tiles_.end())
-    {
-        if (tile_it->second.number_of_hits_ == 0)
-        {
-            store.empty_tiles_[tile_it->first] = tile_it->second;
-            tile_it = store.non_empty_tiles_.erase(tile_it);
-        }
-        else
-        {
-            tile_it->second.hit_ratio_ = tile_it->second.number_of_hits_ / (tile_size*tile_size);
-            store.total_hits_ += tile_it->second.number_of_hits_;
-            ++tile_it;
-        }
-    }
-
-    store.total_hit_ratio_ = static_cast<float>(store.total_hits_) / (geometry.width_*geometry.length_);
+    const std::size_t tile_area = tile_size * tile_size;
+    const std::size_t geometry_area = geometry.length_ * geometry.width_;
+    process_tiles(store, tile_area, geometry_area);
 
     count_common_edges(store);
 
@@ -194,4 +179,29 @@ void prepare_tiles(const geometry_3d_data_store& geometry,
             }
         }
     }
+}
+
+void process_tiles(tiling_parameters_store<coords_2d>& store,
+                   const std::size_t tile_area,
+                   const std::size_t geometry_area)
+{
+    //TODO: filtering empty tiles and calculate some stats, extract to separate function
+    auto tile_it = store.non_empty_tiles_.begin();
+    while (tile_it != store.non_empty_tiles_.end())
+    {
+        if (tile_it->second.number_of_hits_ == 0)
+        {
+            store.empty_tiles_[tile_it->first] = tile_it->second;
+            tile_it = store.non_empty_tiles_.erase(tile_it);
+        }
+        else
+        {
+            tile_it->second.hit_ratio_ = static_cast<float>(
+                                            tile_it->second.number_of_hits_) / (tile_area);
+            store.total_hits_ += tile_it->second.number_of_hits_;
+            ++tile_it;
+        }
+    }
+
+    store.total_hit_ratio_ = static_cast<float>(store.total_hits_) / (geometry_area);
 }
