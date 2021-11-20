@@ -81,7 +81,7 @@ void count_common_edges(tiling_parameters_store<coords_2d>& store)
     }
 }
 
-void count_common_faces(tiling_parameters_store<coords_3d>& store)
+void count_common_edges(tiling_parameters_store<coords_3d>& store)
 {
     for (auto& tile_it : store.non_empty_tiles_)
     {
@@ -95,4 +95,26 @@ void count_common_faces(tiling_parameters_store<coords_3d>& store)
             }
         }
     }
+}
+
+std::size_t calculate_tile_area(const std::size_t tile_size,
+                                const std::size_t dimension)
+{
+    std::size_t area = 1;
+
+    for (std::size_t i = 1; i <= dimension; ++i)
+    {
+        area *= tile_size;
+    }
+    return area;
+}
+
+std::size_t calculate_geometry_area(const geometry_2d_data_store& geometry)
+{
+    return geometry.width_ * geometry.length_;
+}
+
+std::size_t calculate_geometry_area(const geometry_3d_data_store& geometry)
+{
+    return geometry.width_ * geometry.length_ * geometry.height_;
 }

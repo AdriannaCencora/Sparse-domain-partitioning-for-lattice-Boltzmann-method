@@ -2,18 +2,14 @@
 #include "generate_data_output.h"
 #include "helpers.h"
 
-#include <tuple>
-
 void geometry_partitioner::operator()(const geometry_2d_data_store& geometry)
 {
-
     for (std::size_t offset_y = 0; offset_y < tile_size_; ++offset_y)
     {
         for (std::size_t offset_x = 0; offset_x < tile_size_; ++offset_x)
         {
-            data_store_variant_ = apply_tiling(geometry,
-                                               {offset_x, offset_y},
-                                               tile_size_);
+            coords_2d coords = {offset_x, offset_y};
+            data_store_variant_ = apply_tiling(geometry, coords, tile_size_);
             generate_data_output(data_store_variant_);
         }
     }
@@ -27,68 +23,12 @@ void geometry_partitioner::operator()(const geometry_3d_data_store& geometry)
         {
             for (std::size_t offset_x = 0; offset_x < tile_size_; ++offset_x)
             {
-                data_store_variant_ = apply_tiling(geometry,
-                                                   {offset_x, offset_y, offset_z},
-                                                   tile_size_);
+                coords_3d coords = {offset_x, offset_y, offset_z};
+                data_store_variant_ = apply_tiling(geometry, coords, tile_size_);
                 generate_data_output(data_store_variant_);
             }
         }
     }
-}
-
-//TODO: Refactor - function has to many responsibilities -> extract
-//template function? <GeometryDataStore, Coords>
-tiling_parameters_store<coords_2d> apply_tiling(const geometry_2d_data_store& geometry,
-                                                const coords_2d& offset,
-                                                const std::size_t tile_size)
-{
-    tiling_parameters_store<coords_2d> store = {};
-    store.offset_ = offset;
-    store.tile_size_ = tile_size;
-
-    prepare_tiles(geometry, store);
-
-    const std::size_t tile_area = tile_size * tile_size;
-    const std::size_t geometry_area = geometry.length_ * geometry.width_;
-    process_tiles(store, tile_area, geometry_area);
-
-    count_common_edges(store);
-
-    return store;
-}
-
-tiling_parameters_store<coords_3d> apply_tiling(const geometry_3d_data_store& geometry,
-                                                const coords_3d& offset,
-                                                const std::size_t tile_size)
-{
-    tiling_parameters_store<coords_3d> store = {};
-    store.offset_ = offset;
-    store.tile_size_ = tile_size;
-
-    prepare_tiles(geometry, store);
-
-    // TODO: filtering empty tiles and calculate some stats, extract to separate function
-    auto tile_it = store.non_empty_tiles_.begin();
-    while (tile_it != store.non_empty_tiles_.end())
-    {
-        if (tile_it->second.number_of_hits_ == 0)
-        {
-            store.empty_tiles_[tile_it->first] = tile_it->second;
-            tile_it = store.non_empty_tiles_.erase(tile_it);
-        }
-        else
-        {
-            tile_it->second.hit_ratio_ = tile_it->second.number_of_hits_/ (tile_size*tile_size*tile_size);
-            store.total_hits_ += tile_it->second.number_of_hits_;
-            ++tile_it;
-        }
-    }
-
-    store.total_hit_ratio_ = static_cast<float>(store.total_hits_) / (geometry.width_*geometry.length_*geometry.height_);
-
-    count_common_faces(store);
-
-    return store;
 }
 
 tile<coords_2d>& get_tile(tiling_parameters_store<coords_2d>& store,
@@ -179,29 +119,4 @@ void prepare_tiles(const geometry_3d_data_store& geometry,
             }
         }
     }
-}
-
-void process_tiles(tiling_parameters_store<coords_2d>& store,
-                   const std::size_t tile_area,
-                   const std::size_t geometry_area)
-{
-    //TODO: filtering empty tiles and calculate some stats, extract to separate function
-    auto tile_it = store.non_empty_tiles_.begin();
-    while (tile_it != store.non_empty_tiles_.end())
-    {
-        if (tile_it->second.number_of_hits_ == 0)
-        {
-            store.empty_tiles_[tile_it->first] = tile_it->second;
-            tile_it = store.non_empty_tiles_.erase(tile_it);
-        }
-        else
-        {
-            tile_it->second.hit_ratio_ = static_cast<float>(
-                                            tile_it->second.number_of_hits_) / (tile_area);
-            store.total_hits_ += tile_it->second.number_of_hits_;
-            ++tile_it;
-        }
-    }
-
-    store.total_hit_ratio_ = static_cast<float>(store.total_hits_) / (geometry_area);
 }

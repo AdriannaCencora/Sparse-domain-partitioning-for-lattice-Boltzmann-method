@@ -10,22 +10,33 @@ typedef std::vector<bitset2d_t> bitset3d_t;
 
 struct geometry_2d_data_store
 {
+    geometry_2d_data_store() : dimension_(2)
+    {}
+
     std::size_t width_;
     std::size_t length_;
+
+    std::size_t dimension_;
 
     bitset2d_t bitset2d_;
 };
 
 struct geometry_3d_data_store
 {
+    geometry_3d_data_store() : dimension_(3)
+    {}
+
     std::size_t width_;
     std::size_t length_;
     std::size_t height_;
 
+    std::size_t dimension_;
+
     bitset3d_t bitset3d_;
 };
 
-typedef boost::variant<geometry_2d_data_store, geometry_3d_data_store> geometry_data_store_variant_t;
+typedef boost::variant<geometry_2d_data_store,
+                       geometry_3d_data_store> geometry_data_store_variant_t;
 
 struct output_printer : public boost::static_visitor<>
 {
