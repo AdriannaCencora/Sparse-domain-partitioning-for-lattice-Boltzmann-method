@@ -16,7 +16,7 @@ struct geometry_partitioner : public boost::static_visitor<>
 
 private:
     const std::size_t tile_size_;
-    tiling_parameters_store_variant_t data_store_variant_;
+    tiling_parameters_store_variant_t tiling_store_variant_;
 };
 
 
@@ -48,8 +48,8 @@ void process_tiles(tiling_parameters_store<CoordsType>& store,
         }
         else
         {
-            tile_it->second.hit_ratio_ = static_cast<float>(
-                                            tile_it->second.number_of_hits_) / (tile_area);
+            tile_it->second.hit_ratio_ =
+                static_cast<float>(tile_it->second.number_of_hits_) / (tile_area);
             store.total_hits_ += tile_it->second.number_of_hits_;
             ++tile_it;
         }

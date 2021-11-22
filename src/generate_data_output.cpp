@@ -39,7 +39,7 @@ void file_writer::operator()(const tiling_parameters_store<coords_2d>& data_stor
 //             el.second.number_of_hits_ << " : " << el.second.number_of_common_sides_ << ", ";
 //    }
 //
-     output_file_ << std::endl << std::endl << std::endl;
+     output_file_ << std::endl << std::endl;
 }
 
 void file_writer::operator()(const tiling_parameters_store<coords_3d>& data_store)
@@ -64,5 +64,5 @@ void file_writer::operator()(const tiling_parameters_store<coords_3d>& data_stor
 //           " : " << el.second.number_of_common_sides_ << ", ";
 //    }
 //
-     output_file_ << std::endl << std::endl << std::endl << std::endl;
+     output_file_ << std::endl << std::endl;
 }

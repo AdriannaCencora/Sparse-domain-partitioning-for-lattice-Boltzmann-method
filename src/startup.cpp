@@ -6,10 +6,13 @@
 #include <iostream>
 #include <string>
 
+#include <boost/program_options.hpp>
+
 void run_partitioning(const app_context& app_ctx)
 {
     for (const auto& tile_size : app_ctx.tile_sizes_collection_)
     {
+        std::cout << tile_size << " " << std::endl;
         geometry_partitioner partitioner{tile_size};
         boost::apply_visitor(partitioner, app_ctx.geometry_data_store_variant_);
     }
@@ -17,20 +20,33 @@ void run_partitioning(const app_context& app_ctx)
 
 int main(int argc, char* argv[])
 {
-    if (argc == 1)
-    {
-        std::cout << "Missing path to data." << std::endl;
-        return EXIT_FAILURE;
-    }
-
-    std::string filename = argv[1];
-
+    std::string filename;
     app_context app_ctx = {};
 
-    //TODO: Find prettier solution for preparing configuration:
-    //read from file / move to function
-    //app_ctx.tile_sizes_collection_ = {2, 3, 4, 5, 6, 7};
-    app_ctx.tile_sizes_collection_ = {3};
+    namespace po = boost::program_options;
+    try
+    {
+        po::options_description options_desc("Options");
+        options_desc.add_options()
+            ("help, h", "Help")
+            ("input-file", po::value<std::string>(&filename)->required(), "Path  to input file")
+            ("tile-size", po::value<std::vector<std::size_t>>(&app_ctx.tile_sizes_collection_)->required(), "Tile sizes collection");
+
+        po::variables_map options_map;
+        po::store(po::parse_command_line(argc, argv, options_desc), options_map);
+        po::notify(options_map);
+
+        if (options_map.count("help"))
+        {
+            std::cout << options_desc << std::endl;
+            return EXIT_SUCCESS;
+        }
+    }
+    catch (const po::error &ex)
+    {
+        std::cerr << ex.what() << std::endl;
+        return EXIT_FAILURE;
+    }
 
     process_data_entry(app_ctx, filename);
 

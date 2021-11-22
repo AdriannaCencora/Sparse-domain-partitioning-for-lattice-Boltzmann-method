@@ -9,8 +9,8 @@ void geometry_partitioner::operator()(const geometry_2d_data_store& geometry)
         for (std::size_t offset_x = 0; offset_x < tile_size_; ++offset_x)
         {
             coords_2d coords = {offset_x, offset_y};
-            data_store_variant_ = apply_tiling(geometry, coords, tile_size_);
-            generate_data_output(data_store_variant_);
+            tiling_store_variant_ = apply_tiling(geometry, coords, tile_size_);
+            generate_data_output(tiling_store_variant_);
         }
     }
 }
@@ -24,8 +24,8 @@ void geometry_partitioner::operator()(const geometry_3d_data_store& geometry)
             for (std::size_t offset_x = 0; offset_x < tile_size_; ++offset_x)
             {
                 coords_3d coords = {offset_x, offset_y, offset_z};
-                data_store_variant_ = apply_tiling(geometry, coords, tile_size_);
-                generate_data_output(data_store_variant_);
+                tiling_store_variant_ = apply_tiling(geometry, coords, tile_size_);
+                generate_data_output(tiling_store_variant_);
             }
         }
     }
