@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
         options_desc.add_options()
             ("help, h", "Help")
             ("input-file", po::value<std::string>(&filename)->required(), "Path  to input file")
-            ("tile-size", po::value<std::vector<std::size_t>>(&app_ctx.tile_sizes_collection_)->required(), "Tile sizes collection");
+            ("tile-size", po::value<std::vector<std::size_t>>(&app_ctx.tile_sizes_collection_)->multitoken()->required(), "Tile sizes collection");
 
         po::variables_map options_map;
         po::store(po::parse_command_line(argc, argv, options_desc), options_map);
