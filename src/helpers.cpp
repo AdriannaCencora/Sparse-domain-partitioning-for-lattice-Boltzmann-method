@@ -108,13 +108,3 @@ std::size_t calculate_tile_area(const std::size_t tile_size,
     }
     return area;
 }
-
-std::size_t calculate_geometry_area(const geometry_2d_data_store& geometry)
-{
-    return geometry.width_ * geometry.length_;
-}
-
-std::size_t calculate_geometry_area(const geometry_3d_data_store& geometry)
-{
-    return geometry.width_ * geometry.length_ * geometry.height_;
-}
