@@ -34,8 +34,7 @@ void prepare_tiles(const geometry_3d_data_store& geometry,
 
 template <typename CoordsType>
 void process_tiles(tiling_parameters_store<CoordsType>& store,
-                   const std::size_t tile_area,
-                   const std::size_t geometry_area)
+                   const std::size_t tile_area)
 {
     //TODO: filtering empty tiles and calculate some stats, extract to separate function
     auto tile_it = store.non_empty_tiles_.begin();
@@ -49,13 +48,14 @@ void process_tiles(tiling_parameters_store<CoordsType>& store,
         else
         {
             tile_it->second.hit_ratio_ =
-                static_cast<float>(tile_it->second.number_of_hits_) / (tile_area);
+                static_cast<float>(tile_it->second.number_of_hits_) / tile_area;
             store.total_hits_ += tile_it->second.number_of_hits_;
             ++tile_it;
         }
     }
 
-    store.total_hit_ratio_ = static_cast<float>(store.total_hits_) / (geometry_area);
+    store.total_hit_ratio_ =
+        static_cast<float>(store.total_hits_) / store.non_empty_tiles_.size();
 
     count_common_edges(store);
 }
@@ -72,9 +72,8 @@ tiling_parameters_store<CoordsType> apply_tiling(GeometryDataStore& geometry,
     prepare_tiles(geometry, store);
 
     std::size_t tile_area = calculate_tile_area(tile_size, geometry.dimension_);
-    std::size_t geometry_area = calculate_geometry_area(geometry);
 
-    process_tiles(store, tile_area, geometry_area);
+    process_tiles(store, tile_area);
 
     return store;
 }

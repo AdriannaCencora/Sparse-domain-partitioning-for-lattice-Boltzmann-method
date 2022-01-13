@@ -38,18 +38,18 @@ tile<coords_2d>& get_tile(tiling_parameters_store<coords_2d>& store,
     // Ex. for tile_size = 3: for offset.x=0 -> 0
     //                        for offset.x=1 -> 2
     //                        for offset.x=2 -> 1
-    int out_of_border_complement_x = ((store.tile_size_ - store.offset_.x) % store.tile_size_);
-    int out_of_border_complement_y = ((store.tile_size_ - store.offset_.y) % store.tile_size_);
+    int out_of_border_x = ((store.tile_size_ - store.offset_.x) % store.tile_size_);
+    int out_of_border_y = ((store.tile_size_ - store.offset_.y) % store.tile_size_);
 
     // Tile starting coordinates without alignement (offset and jumping by tile size)
-    int starting_x = (current_coord.x + out_of_border_complement_x) / store.tile_size_;
-    int starting_y = (current_coord.y + out_of_border_complement_y) / store.tile_size_;
+    int start_x = (current_coord.x + out_of_border_x) / store.tile_size_;
+    int start_y = (current_coord.y + out_of_border_y) / store.tile_size_;
 
     // Real tile starting coordinates in geometry (from 'the most left' side)
-    int displaced_starting_x = -out_of_border_complement_x + starting_x * store.tile_size_;
-    int displaced_starting_y = -out_of_border_complement_y + starting_y * store.tile_size_;
+    int displaced_start_x = -out_of_border_x + start_x * store.tile_size_;
+    int displaced_start_y = -out_of_border_y + start_y * store.tile_size_;
 
-    coords_2d tile_start_coords = {displaced_starting_x, displaced_starting_y};
+    coords_2d tile_start_coords = {displaced_start_x, displaced_start_y};
 
     // Create new key - tile starting coordinates - with empty tile or get already existing
     return store.non_empty_tiles_[tile_start_coords];
@@ -58,26 +58,28 @@ tile<coords_2d>& get_tile(tiling_parameters_store<coords_2d>& store,
 tile<coords_3d>& get_tile(tiling_parameters_store<coords_3d>& store,
                           const coords_3d current_coord)
 {
+    //TODO: extract calculation to separate function
+
     // Out of border tile complement, the same for whole iteration
-    int out_of_border_complement_x = ((store.tile_size_ - store.offset_.x) % store.tile_size_);
-    int out_of_border_complement_y = ((store.tile_size_ - store.offset_.y) % store.tile_size_);
-    int out_of_border_complement_z = ((store.tile_size_ - store.offset_.z) % store.tile_size_);
+    int out_of_border_x = ((store.tile_size_ - store.offset_.x) % store.tile_size_);
+    int out_of_border_y = ((store.tile_size_ - store.offset_.y) % store.tile_size_);
+    int out_of_border_z = ((store.tile_size_ - store.offset_.z) % store.tile_size_);
 
     // Tile starting coordinates without alignement (offset and jumping by tile size)
-    int starting_x = (current_coord.x + out_of_border_complement_x) / store.tile_size_;
-    int starting_y = (current_coord.y + out_of_border_complement_y) / store.tile_size_;
-    int starting_z = (current_coord.z + out_of_border_complement_z) / store.tile_size_;
+    int start_x = (current_coord.x + out_of_border_x) / store.tile_size_;
+    int start_y = (current_coord.y + out_of_border_y) / store.tile_size_;
+    int start_z = (current_coord.z + out_of_border_z) / store.tile_size_;
 
     // Real tile starting coordinates in geometry (from 'the most left' side)
-    int displaced_starting_x = -out_of_border_complement_x + starting_x * store.tile_size_;
-    int displaced_starting_y = -out_of_border_complement_y + starting_y * store.tile_size_;
-    int displaced_starting_z = -out_of_border_complement_z + starting_z * store.tile_size_;
+    int displaced_start_x = -out_of_border_x + start_x * store.tile_size_;
+    int displaced_start_y = -out_of_border_y + start_y * store.tile_size_;
+    int displaced_start_z = -out_of_border_z + start_z * store.tile_size_;
 
-    coords_3d tile_starting_coords = {displaced_starting_x, displaced_starting_y,
-                                      displaced_starting_z};
+    coords_3d tile_start_coords = {displaced_start_x, displaced_start_y,
+                                      displaced_start_z};
 
     // Create new key - tile starting coordinates - with empty tile or get already existing
-    return store.non_empty_tiles_[tile_starting_coords];
+    return store.non_empty_tiles_[tile_start_coords];
 }
 
 void prepare_tiles(const geometry_2d_data_store& geometry,

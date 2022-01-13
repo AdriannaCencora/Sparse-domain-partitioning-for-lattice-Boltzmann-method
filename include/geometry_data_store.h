@@ -38,6 +38,8 @@ struct geometry_3d_data_store
 typedef boost::variant<geometry_2d_data_store,
                        geometry_3d_data_store> geometry_data_store_variant_t;
 
+
+// TODO: removme, just tmp helper
 struct output_printer : public boost::static_visitor<>
 {
     void operator()(geometry_2d_data_store& geometry) const
