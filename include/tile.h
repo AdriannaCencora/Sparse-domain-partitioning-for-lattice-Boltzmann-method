@@ -65,7 +65,6 @@ struct tile
     std::size_t number_of_hits_ = 0;
     float hit_ratio_ = 0;
     std::vector<CoordsType> hit_coords_;
-    std::size_t number_of_common_sides_ = 0;
 };
 
 template<typename CoordsType>
@@ -82,6 +81,8 @@ struct tiling_parameters_store
 
     std::size_t total_hits_ = 0;
     float total_hit_ratio_ = 0.0;
+    std::size_t number_of_common_edges_ = 0;
+    std::size_t number_of_common_vertices_ = 0;
 };
 
 typedef boost::variant<tiling_parameters_store<coords_2d>,
