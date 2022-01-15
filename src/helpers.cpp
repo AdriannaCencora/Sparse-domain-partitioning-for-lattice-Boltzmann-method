@@ -1,6 +1,7 @@
 #include "helpers.h"
 
-void count_common_edges(tiling_parameters_store<coords_2d>& store)
+
+void count_common(tiling_parameters_store<coords_2d>& store)
 {
     for (auto& tile_it : store.non_empty_tiles_)
     {
@@ -29,7 +30,7 @@ void count_common_edges(tiling_parameters_store<coords_2d>& store)
     }
 }
 
-void count_common_edges(tiling_parameters_store<coords_3d>& store)
+void count_common(tiling_parameters_store<coords_3d>& store)
 {
     for (auto& tile_it : store.non_empty_tiles_)
     {

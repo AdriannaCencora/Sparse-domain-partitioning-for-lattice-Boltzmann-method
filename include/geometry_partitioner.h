@@ -4,8 +4,6 @@
 #include "tile.h"
 #include "helpers.h"
 
-#include <numeric>
-
 struct geometry_partitioner : public boost::static_visitor<>
 {
     geometry_partitioner(const std::size_t tile_size)
@@ -55,19 +53,7 @@ void process_tiles(tiling_parameters_store<CoordsType>& store,
         }
     }
 
-
-    store.fill_ratio_ = std::accumulate(store.non_empty_tiles_.begin(),
-                                  store.non_empty_tiles_.end(),
-                                  0.0,
-                                  [](float current_result, const auto& elem)
-                                  {return current_result + elem.second.fill_ratio_;}) / store.non_empty_tiles_.size();
-
-    count_common_edges(store);
-
-    store.common_edges_ratio_ =
-        static_cast<float>(store.number_of_common_edges_) / store.non_empty_tiles_.size();
-    store.common_vertices_ratio_ =
-        static_cast<float>(store.number_of_common_vertices_) / store.non_empty_tiles_.size();
+    collect_tiling_parameters(store);
 }
 
 template <typename GeometryDataStore, typename CoordsType>
