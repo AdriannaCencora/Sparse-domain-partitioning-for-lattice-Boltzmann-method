@@ -30,9 +30,11 @@ void file_writer::operator()(const tiling_parameters_store<coords_2d>& data_stor
     output_file_ << "Non empty tiles: " << data_store.non_empty_tiles_.size() << std::endl;
 
     output_file_ << "Total hits: " << data_store.total_hits_ << std::endl;
-    output_file_ << "Total hit ratio: " << data_store.total_hit_ratio_ << std::endl;
+    output_file_ << "Fill ratio: " << data_store.fill_ratio_ << std::endl;
     output_file_ << "Number of common edges: " << data_store.number_of_common_edges_ << std::endl;
+    output_file_ << "Common edges ratio: " << data_store.common_edges_ratio_ << std::endl;
     output_file_ << "Number of common vertices " << data_store.number_of_common_vertices_ << std::endl;
+    output_file_ << "Common vertices ratio: " << data_store.common_vertices_ratio_ << std::endl;
 
      output_file_ << std::endl << std::endl;
 }
@@ -49,9 +51,11 @@ void file_writer::operator()(const tiling_parameters_store<coords_3d>& data_stor
     output_file_ << "Non empty tiles: " << data_store.non_empty_tiles_.size() << std::endl;
 
     output_file_ << "Total hits: " << data_store.total_hits_ << std::endl;
-    output_file_ << "Total hit ratio: " << data_store.total_hit_ratio_ << std::endl;
+    output_file_ << "Total hit ratio: " << data_store.fill_ratio_ << std::endl;
     output_file_ << "Number of common edges: " << data_store.number_of_common_edges_ << std::endl;
+    output_file_ << "Common edges ratio: " << data_store.common_edges_ratio_ << std::endl;
     output_file_ << "Number of common vertices " << data_store.number_of_common_vertices_ << std::endl;
+    output_file_ << "Common vertices ratio: " << data_store.common_vertices_ratio_ << std::endl;
 
      output_file_ << std::endl << std::endl;
 }
