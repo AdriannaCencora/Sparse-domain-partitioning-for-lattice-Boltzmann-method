@@ -76,8 +76,7 @@ struct tiling_parameters_store
     CoordsType offset_;
     std::size_t tile_size_;
 
-    tiling_map_t<CoordsType> empty_tiles_;
-    tiling_map_t<CoordsType> non_empty_tiles_;
+    tiling_map_t<CoordsType> tiles_;
 
     std::size_t total_hits_ = 0;
     float fill_ratio_ = 0.0;

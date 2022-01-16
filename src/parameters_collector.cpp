@@ -1,14 +1,14 @@
-#include "helpers.h"
+#include "parameters_collector.h"
 
 
 void count_common(tiling_parameters_store<coords_2d>& store)
 {
-    for (auto& tile_it : store.non_empty_tiles_)
+    for (auto& tile_it : store.tiles_)
     {
         // right neighbor
         coords_2d neighbor_coords = tile_it.first;
         neighbor_coords.x += store.tile_size_;
-        if (store.non_empty_tiles_.find(neighbor_coords) != store.non_empty_tiles_.end())
+        if (store.tiles_.find(neighbor_coords) != store.tiles_.end())
         {
             ++store.number_of_common_edges_;
         }
@@ -16,14 +16,14 @@ void count_common(tiling_parameters_store<coords_2d>& store)
         // down neighbor
         neighbor_coords.x = tile_it.first.x;
         neighbor_coords.y += store.tile_size_;
-        if (store.non_empty_tiles_.find(neighbor_coords) != store.non_empty_tiles_.end())
+        if (store.tiles_.find(neighbor_coords) != store.tiles_.end())
         {
             ++store.number_of_common_edges_;
         }
 
         // vertex neighbor
         neighbor_coords.x += store.tile_size_;
-        if (store.non_empty_tiles_.find(neighbor_coords) != store.non_empty_tiles_.end())
+        if (store.tiles_.find(neighbor_coords) != store.tiles_.end())
         {
             ++store.number_of_common_vertices_;
         }
@@ -32,12 +32,12 @@ void count_common(tiling_parameters_store<coords_2d>& store)
 
 void count_common(tiling_parameters_store<coords_3d>& store)
 {
-    for (auto& tile_it : store.non_empty_tiles_)
+    for (auto& tile_it : store.tiles_)
     {
         // right neighbor
         coords_3d neighbor_coords = tile_it.first;
         neighbor_coords.x += store.tile_size_;
-        if (store.non_empty_tiles_.find(neighbor_coords) != store.non_empty_tiles_.end())
+        if (store.tiles_.find(neighbor_coords) != store.tiles_.end())
         {
             ++store.number_of_common_edges_;
         }
@@ -45,7 +45,7 @@ void count_common(tiling_parameters_store<coords_3d>& store)
         // up neighbor
         neighbor_coords.x = tile_it.first.x;
         neighbor_coords.y += store.tile_size_;
-        if (store.non_empty_tiles_.find(neighbor_coords) != store.non_empty_tiles_.end())
+        if (store.tiles_.find(neighbor_coords) != store.tiles_.end())
         {
             ++store.number_of_common_edges_;
         }
@@ -53,7 +53,7 @@ void count_common(tiling_parameters_store<coords_3d>& store)
         // back neighbor
         neighbor_coords.y = tile_it.first.y;
         neighbor_coords.z += store.tile_size_;
-        if (store.non_empty_tiles_.find(neighbor_coords) != store.non_empty_tiles_.end())
+        if (store.tiles_.find(neighbor_coords) != store.tiles_.end())
         {
             ++store.number_of_common_edges_;
         }
@@ -61,7 +61,7 @@ void count_common(tiling_parameters_store<coords_3d>& store)
         // vertex neighbor
         neighbor_coords.x += store.tile_size_;
         neighbor_coords.y += store.tile_size_;
-        if (store.non_empty_tiles_.find(neighbor_coords) != store.non_empty_tiles_.end())
+        if (store.tiles_.find(neighbor_coords) != store.tiles_.end())
         {
             ++store.number_of_common_vertices_;
         }

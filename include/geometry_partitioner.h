@@ -2,7 +2,7 @@
 
 #include "geometry_data_store.h"
 #include "tile.h"
-#include "helpers.h"
+#include "parameters_collector.h"
 
 struct geometry_partitioner : public boost::static_visitor<>
 {
@@ -32,17 +32,16 @@ void prepare_tiles(const geometry_3d_data_store& geometry,
                    tiling_parameters_store<coords_3d>& store);
 
 template <typename CoordsType>
-void process_tiles(tiling_parameters_store<CoordsType>& store,
+void filter_tiles(tiling_parameters_store<CoordsType>& store,
                    const std::size_t tile_area)
 {
     //TODO: filtering empty tiles and calculate some stats, extract to separate function
-    auto tile_it = store.non_empty_tiles_.begin();
-    while (tile_it != store.non_empty_tiles_.end())
+    auto tile_it = store.tiles_.begin();
+    while (tile_it != store.tiles_.end())
     {
         if (tile_it->second.number_of_hits_ == 0)
         {
-            store.empty_tiles_[tile_it->first] = tile_it->second;
-            tile_it = store.non_empty_tiles_.erase(tile_it);
+            tile_it = store.tiles_.erase(tile_it);
         }
         else
         {
@@ -53,7 +52,6 @@ void process_tiles(tiling_parameters_store<CoordsType>& store,
         }
     }
 
-    collect_tiling_parameters(store);
 }
 
 template <typename GeometryDataStore, typename CoordsType>
@@ -69,7 +67,16 @@ tiling_parameters_store<CoordsType> apply_tiling(GeometryDataStore& geometry,
 
     std::size_t tile_area = calculate_tile_area(tile_size, geometry.dimension_);
 
-    process_tiles(store, tile_area);
+    filter_tiles(store, tile_area);
+
+    if (!store.tiles_.empty())
+    {
+        collect_tiling_parameters(store);
+    }
+    else
+    {
+        std::cerr << "Tiles collection is empty. Nothing to process." << std::endl;
+    }
 
     return store;
 }

@@ -26,8 +26,7 @@ void file_writer::operator()(const tiling_parameters_store<coords_2d>& data_stor
     output_file_ << "Tile size: " << data_store.tile_size_ << std::endl;
     output_file_ << "Offset: " << data_store.offset_.x << ", " <<
         data_store.offset_.y << std::endl;
-    output_file_ << "Empty tiles: " << data_store.empty_tiles_.size() << std::endl;
-    output_file_ << "Non empty tiles: " << data_store.non_empty_tiles_.size() << std::endl;
+    output_file_ << "Non empty tiles: " << data_store.tiles_.size() << std::endl;
 
     output_file_ << "Total hits: " << data_store.total_hits_ << std::endl;
     output_file_ << "Fill ratio: " << data_store.fill_ratio_ << std::endl;
@@ -47,8 +46,7 @@ void file_writer::operator()(const tiling_parameters_store<coords_3d>& data_stor
     output_file_ << "Offset xyz: " << data_store.offset_.x << ", " <<
         data_store.offset_.y<< ", "<<
         data_store.offset_.z<<  std::endl;
-    output_file_ << "Empty tiles: " << data_store.empty_tiles_.size() << std::endl;
-    output_file_ << "Non empty tiles: " << data_store.non_empty_tiles_.size() << std::endl;
+    output_file_ << "Non empty tiles: " << data_store.tiles_.size() << std::endl;
 
     output_file_ << "Total hits: " << data_store.total_hits_ << std::endl;
     output_file_ << "Total hit ratio: " << data_store.fill_ratio_ << std::endl;

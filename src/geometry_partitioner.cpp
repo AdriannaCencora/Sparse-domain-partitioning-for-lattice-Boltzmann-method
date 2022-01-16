@@ -1,6 +1,6 @@
 #include "geometry_partitioner.h"
 #include "generate_data_output.h"
-#include "helpers.h"
+#include "parameters_collector.h"
 
 void geometry_partitioner::operator()(const geometry_2d_data_store& geometry)
 {
@@ -52,7 +52,7 @@ tile<coords_2d>& get_tile(tiling_parameters_store<coords_2d>& store,
     coords_2d tile_start_coords = {displaced_start_x, displaced_start_y};
 
     // Create new key - tile starting coordinates - with empty tile or get already existing
-    return store.non_empty_tiles_[tile_start_coords];
+    return store.tiles_[tile_start_coords];
 }
 
 tile<coords_3d>& get_tile(tiling_parameters_store<coords_3d>& store,
@@ -79,7 +79,7 @@ tile<coords_3d>& get_tile(tiling_parameters_store<coords_3d>& store,
                                       displaced_start_z};
 
     // Create new key - tile starting coordinates - with empty tile or get already existing
-    return store.non_empty_tiles_[tile_start_coords];
+    return store.tiles_[tile_start_coords];
 }
 
 void prepare_tiles(const geometry_2d_data_store& geometry,
