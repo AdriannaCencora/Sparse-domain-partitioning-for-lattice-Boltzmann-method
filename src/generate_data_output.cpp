@@ -1,5 +1,9 @@
 #include "generate_data_output.h"
 
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
+
 void generate_data_output(tiling_parameters_store_variant_t& data_store)
 {
     std::string filename = "tiling_parameters";
