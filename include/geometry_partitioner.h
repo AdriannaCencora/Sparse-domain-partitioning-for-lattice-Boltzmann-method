@@ -35,7 +35,6 @@ template <typename CoordsType>
 void filter_tiles(tiling_parameters_store<CoordsType>& store,
                    const std::size_t tile_area)
 {
-    //TODO: filtering empty tiles and calculate some stats, extract to separate function
     auto tile_it = store.tiles_.begin();
     while (tile_it != store.tiles_.end())
     {
