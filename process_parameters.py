@@ -2,6 +2,8 @@ import json
 import math
 import pandas as pd
 import plotly.graph_objects as go
+import matplotlib.pyplot as plt
+import numpy as np
 
 output_berea_fill = []
 output_c1_fill = []
@@ -25,8 +27,8 @@ output_c1_vertices_3d  = []
 def process_fill_ratio(input_tiles_list, output):
 
     tile_dict = {"tile_size" : input_tiles_list[0]["tile_size"],
-#                 "start_ratio" : input_tiles_list[0]["fill_ratio"],
- #                "end_ratio" : input_tiles_list[-1]["fill_ratio"],
+                 "start_ratio" : input_tiles_list[0]["fill_ratio"],
+                 "end_ratio" : input_tiles_list[-1]["fill_ratio"],
                  "min_ratio" : [],
                  "min_offset" : [],
                  "max_ratio" : [],
@@ -174,15 +176,59 @@ print_json_output(output_berea_vertices_3d, output_c1_vertices_3d)
 
 
 
-#df = pd.DataFrame(output_berea)
-#print(df.style.to_latex())
+df = pd.DataFrame(output_berea_fill)
+df2 = pd.DataFrame(output_c1_fill)
 
-#fig = go.Figure(data=[go.Candlestick(x=df['tile_size'],
-#                open=df['start_ratio'],
-#                high=df['max_ratio'],
-#                low=df['min_ratio'],
-#                close=df['end_ratio'])])
-#fig.show()
+df3 = pd.DataFrame(output_berea_fill_3d)
 
+print(df)
+
+#candlestick = go.Candlestick(x=df['tile_size'],
+#                             open=df['start_ratio'],
+#                             high=df['max_ratio'],
+#                             low=df['min_ratio'],
+#                             close=df['end_ratio'])
+#
+#candlestick2 = go.Candlestick(x=df2['tile_size'],
+#                             open=df2['start_ratio'],
+#                             high=df2['max_ratio'],
+#                             low=df2['min_ratio'],
+#                             close=df2['end_ratio'],
+#                             increasing_line_color= 'blue',
+#                             decreasing_line_color= 'orange')
+#
+#fig = go.Figure(data=[candlestick, candlestick2])
+#fig.update_layout(title="Fill ratio",
+#                  yaxis_title='Tile size',
+#                  width=800, height=600)
+#
+#candlestick3 = go.Candlestick(x=df3['tile_size'],
+#                             open=df3['start_ratio'],
+#                             high=df3['max_ratio'],
+#                             low=df3['min_ratio'],
+#                             close=df3['end_ratio'])
+#fig = go.Figure(data=[candlestick3])
+
+
+
+ratio = pd.DataFrame(output_berea_fill, index=range(2,16), columns=['max_ratio', 'avg_ratio', 'min_ratio'])
+#ratio = pd.DataFrame(data=output_berea_fill, index=[output_berea_fill['tile_size']], columns=['tile_size', 'min_ratio', 'avg_ratio', 'max_ratio'])
+print(ratio)
+
+#ax = ratio.plot.bar()
+#plt.bar(ratio['tile_size'], ratio)
+ax = ratio.plot(kind='bar', color={"min_ratio" : "mediumpurple", "avg_ratio" : "dodgerblue", "max_ratio" : "lightseagreen"}, width=0.9, figsize=(12,5), rot=0, edgecolor='black')
+plt.yticks(ticks=np.arange(0.6, 1., .02, dtype=float))
+plt.ylim(ymax=1, ymin = 0.7)
+plt.title("Berea sandstone")
+plt.xlabel("Rozmiar kafelka")
+plt.ylabel("Średni współczynnik wypełnienia kafelka")
+
+ax.axhline(y=0.7987,  color='r', label="Porowatość geometrii")
+ax.legend()
+
+
+
+plt.savefig("test6.png")
 
 #import mplfinance as fplt
